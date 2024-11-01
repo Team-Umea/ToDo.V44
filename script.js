@@ -21,6 +21,15 @@ function deleteTask(id) {
    console.log(toDo);
    
 }
+function completeTask(id) {
+    for (let i = 0; i < toDo.length; i++) {
+       if (toDo[i].id===id) {
+        toDo[i].isDone = true;
+       }
+        
+    }
+
+}
 // deleteTask(2);
 console.log(toDo);
 
