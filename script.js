@@ -1,4 +1,9 @@
+
+const textInput = document.getElementById("textInput");
+const list = document.getElementById("toDoList");
+
 const toDo = [];
+
 let idCounter = 0;
 function addTask(task) {
     const newTask = {
@@ -8,32 +13,30 @@ function addTask(task) {
     };
     idCounter++;
     toDo.push(newTask);
+    renderList();
 }
 addTask("städa");
-addTask("städa");
-addTask("sdsa");
-addTask("städa");
-addTask("städa");
 
-console.log(toDo);
 function deleteTask(id) {
    toDo.splice(id,1);
-   console.log(toDo);
-   
+   renderList();
 }
+
 function completeTask(id) {
+    id = parseInt(id);
     for (let i = 0; i < toDo.length; i++) {
-       if (toDo[i].id===id) {
+       if (toDo[i].id === id) {
         toDo[i].isDone = true;
        }
-        
     }
-
+    renderList();
 }
-// deleteTask(2);
-console.log(toDo);
 
-function logButton() {
-    console.log(toDo.reverse());
-    
+function renderList() {
+    let text = "";
+
+    toDo.forEach( (task) => {
+        text += `<li>${task.taskName}</li>`;
+    });
+    list.innerHTML = text;
 }
