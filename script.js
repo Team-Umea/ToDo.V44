@@ -1,12 +1,18 @@
 const toDo = [];
 
-function addTask(task) {
+function addTask(task,id) {
     const newTask = {
-        id: 0,
-        taskName: task,
-        isDone: false,
-
-    } 
-    toDo.push(newTask)
+        "id": id,
+        "taskName": task,
+        "isDone": false
+    };
+    toDo.push(newTask);
 }
+addTask("städa",toDo.length);
+addTask("städa",toDo.length);
+addTask("städa",toDo.length);
+addTask("städa",toDo.length);
+addTask("städa",toDo.length);
+
+console.log(toDo);
 
