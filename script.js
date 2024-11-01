@@ -2,7 +2,7 @@
 const textInput = document.getElementById("textInput");
 const list = document.getElementById("toDoList");
 
-const toDo = [];
+let toDo = [];
 
 let idCounter = 0;
 function addTask(task) {
@@ -18,7 +18,8 @@ function addTask(task) {
 addTask("städa");
 
 function deleteTask(id) {
-   toDo.splice(id,1);
+   toDo = toDo.filter((task) => task.id !== id);
+
    renderList();
 }
 
@@ -36,7 +37,8 @@ function renderList() {
     let text = "";
 
     toDo.forEach( (task) => {
-        text += `<li>${task.taskName}</li>`;
+        text += `<li><p>${task.taskName}</p><button onclick="completeTask(${task.id})">klar</button><button onclick="deleteTask(${task.id})">delete</button></li>`;
+
     });
     list.innerHTML = text;
 }
