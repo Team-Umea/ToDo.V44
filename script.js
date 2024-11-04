@@ -35,10 +35,11 @@ function completeTask(id) {
 
 function renderList() {
     let text = "";
-
     toDo.forEach( (task) => {
         text += `<li><p>${task.taskName}</p><button onclick="completeTask(${task.id})">klar</button><button onclick="deleteTask(${task.id})">delete</button></li>`;
 
     });
     list.innerHTML = text;
+    console.log(toDo);
 }
+
