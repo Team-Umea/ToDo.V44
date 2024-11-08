@@ -8,9 +8,12 @@ const toDoListContainer = document.getElementById("toDoListContainer")
 const toDoList = document.getElementById("toDoList");
 const viewBtns = document.querySelectorAll(".viewBtn"); 
 
-
 let toDo = [];
 let orgTodo = [];
+
+if(localStorage.tasks != ""){
+    toDo = JSON.parse(localStorage.tasks);
+}
 
 addTaskForm.addEventListener("submit",function(event){
     event.preventDefault();
@@ -56,6 +59,10 @@ addTaskForm.addEventListener("submit",function(event){
     console.log(localStorage);
 })
 
+saveToLocalStorage.addEventListener("click", (e)=>{
+    localStorage.setItem('tasks',JSON.stringify(toDo));
+})
+
 function editTask(specificTask){
     toDo = toDo.map(task => {
         if(task.id === specificTask.id){
@@ -90,8 +97,6 @@ function addTask(taskObj){
 function resetForm(){
     addTaskTitle.value="";
     addTaskDesc.value="";
-    
-
 }
 
 function generateID(){
@@ -164,13 +169,6 @@ function renderList() {
 
         taskCompleteBtn.addEventListener("click",function(){
             task.isDone = !task.isDone;
-            //  Oscars förklaring 
-            // if(task.isDone===true){
-            //     task.isDone=false;
-            // }else if(task.isDone===false){
-            //     task.isDone=true;
-            // }
-            
             if (task.isDone) {
                 h2.classList.add("complete");
                 p.classList.add("complete");
