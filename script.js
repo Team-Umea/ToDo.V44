@@ -6,7 +6,6 @@ const addTaskDesc = document.getElementById("taskDescInput")
 const submitMessage = document.getElementById("submitMessage")
 const toDoListContainer = document.getElementById("toDoListContainer")
 const toDoList = document.getElementById("toDoList");
-const sortListBtn =document.getElementById("sortList");
 const viewBtns = document.querySelectorAll(".viewBtn"); 
 
 
@@ -110,12 +109,12 @@ function renderList() {
         const h2 = document.createElement("h2");
         h2.setAttribute("class","taskTitle");
         h2.innerText=task.title;
-        task.isDone?h2.classList.add("complete"):h2.classList.remove("complete")
+        task.isDone? h2.classList.add("complete"): h2.classList.remove("complete")
 
         const p = document.createElement("p");
         p.setAttribute("class","taskDesc");
         p.innerText=task.desc;
-        task.isDone?p.classList.add("complete"):p.classList.remove("complete")
+        task.isDone? p.classList.add("complete"): p.classList.remove("complete")
 
 
         const taskDeleteBtn = document.createElement("button");
@@ -141,7 +140,6 @@ function renderList() {
             // }
             
             if (task.isDone) {
-                console.log("hellow i am true");
                 h2.classList.add("complete");
                 p.classList.add("complete");
             } else {
