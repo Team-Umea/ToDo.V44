@@ -62,22 +62,10 @@ function generateID(){
     }
 }
 
-// function addTask(task) {
-//     const newTask = {
-//         id: generateID(),
-//         taskName: task,
-//         isDone: false
-//     };
-//     // idCounter++;
-//     toDo.push(newTask);
-//     renderList();
-// }
-// addTask("städa");
+
 
 function deleteTask(id) {
    toDo = toDo.filter((task) => task.id !== id);
-
-//    renderList();
 }
 
 function completeTask(id) {
@@ -106,10 +94,13 @@ function renderList() {
         const h2 = document.createElement("h2");
         h2.setAttribute("class","taskTitle");
         h2.innerText=task.title;
+        task.isDone?h2.classList.add("complete"):h2.classList.remove("complete")
 
         const p = document.createElement("p");
         p.setAttribute("class","taskDesc");
         p.innerText=task.desc;
+        task.isDone?p.classList.add("complete"):p.classList.remove("complete")
+
 
         const taskDeleteBtn = document.createElement("button");
         taskDeleteBtn.setAttribute("class","taskDeleteBtn");
@@ -125,8 +116,23 @@ function renderList() {
         taskCompleteBtn.innerText="Complete"; 
 
         taskCompleteBtn.addEventListener("click",function(){
-            h2.style.color="green";
-            p.style.color="green";
+            task.isDone = !task.isDone;
+            //  Oscars förklaring 
+            // if(task.isDone===true){
+            //     task.isDone=false;
+            // }else if(task.isDone===false){
+            //     task.isDone=true;
+            // }
+            
+            if (task.isDone) {
+                console.log("hellow i am true");
+                h2.classList.add("complete");
+                p.classList.add("complete");
+            } else {
+                h2.classList.remove("complete");
+                p.classList.remove("complete");
+            }
+ 
         })
 
         const taskEditBtn = document.createElement("button");
@@ -140,27 +146,7 @@ function renderList() {
         li.appendChild(taskEditBtn);
 
         toDoList.appendChild(li);
-
-
-
-
-
-
-        // const li = document.createElement("li");
-        // const li = document.createElement("li");
-        // const li = document.createElement("li");
-        // const li = document.createElement("li");
-        // const li = document.createElement("li");
-
-
-        // <li class="taskItem">
-        //     <p class="taskTitle">Title</p>
-        //     <p class="taskTitle">Desc</p>
-        //     <button class="taskDeleteBtn">Delete</button>
-        //     <button class="taskCompleteBtn">Compelte</button>
-        //     <button class="taskEditBtn">Edit</button>
-        // </li>
-    });
-}
+    });    
+} 
 
 
