@@ -15,31 +15,58 @@ addTaskForm.addEventListener("submit",function(event){
     const title = addTaskTitle.value.trim();
     const desc = addTaskDesc.value.trim();
 
-    if(title===""||desc===""){ 
+    if (title === "" || desc === "") { 
         submitMessage.innerText="ERROR! Both fields must not be empty"
         submitMessage.style.color="red"; 
+    } else {
+        if(event.submitter.id === document.getElementById('submit').id){
+            userMessage("Success!");
+    
+            const task = {
+                id:generateID(),
+                title:title,
+                desc:desc,
+                isDone:false
+            }
+            addTask(task);//toDo.push(task);
+            renderList();
+            resetForm(); //addTaskTitle.value=""; addTaskDesc.value="";
+        } else if (event.submitter.id === document.getElementById('editTask').id) {
+            userMessage("Success!");
 
-    }else{
-
-        submitMessage.innerText="Success"
-        submitMessage.style.color="green"; 
-
-        setTimeout(()=>{
-            submitMessage.innerText="";
-        },1500)
-
-        const task = {
-            id:generateID(),
-            title:title,
-            desc:desc,
-            isDone:false
+            const task = {
+                id: document.getElementById('currentStatus').value,
+                title:title,
+                desc:desc,
+                isDone:false
+            }
+            
+            editTask(task);
+            renderList();
+            resetForm();
+            
         }
-        addTask(task);//toDo.push(task);
-        renderList();
-        resetForm(); //addTaskTitle.value=""; addTaskDesc.value="";
     }
-
+    resetStatus();
 })
+
+function editTask(specificTask){
+    toDo = toDo.map(task => {
+        if(task.id === specificTask.id){
+            return { ...task, title: specificTask.title, desc: specificTask.desc }; // Replace name with "Anonymous"
+        }
+        return task;
+    })
+}
+
+//Error handling
+function userMessage (param){
+    submitMessage.innerText=param;
+    submitMessage.style.color="green"; 
+    setTimeout(()=>{
+        submitMessage.innerText="";
+    },3000)
+}
 
 function addTask(taskObj){
     toDo.push(taskObj);
@@ -90,6 +117,19 @@ function completeTask(id) {
     renderList();
 }
 
+
+//Resets classes and status message
+function resetStatus(){
+    const editTaskBtn = document.getElementById('editTask');
+    const currentStatus = document.getElementById('currentStatus');
+
+    currentStatus.setAttribute('class','hidden');
+    currentStatus.innerText = "";
+    currentStatus.removeAttribute('value');
+
+    editTaskBtn.setAttribute('class','hidden');
+}
+
 function renderList() {
 
     // const toDoListContainer = document.getElementById("toDoListContainer")
@@ -131,7 +171,21 @@ function renderList() {
 
         const taskEditBtn = document.createElement("button");
         taskEditBtn.setAttribute("class","taskEditBtn");
-        taskEditBtn.innerText="Edit"; 
+        taskEditBtn.innerText="Edit";
+        
+        taskEditBtn.addEventListener('click',()=>{
+            addTaskTitle.value = task.title;
+            addTaskDesc.value = task.desc;
+            
+            const editTaskBtn = document.getElementById('editTask');
+            const currentStatus = document.getElementById('currentStatus');
+
+            currentStatus.removeAttribute('class','hidden');
+            currentStatus.innerText = `You are editing task... ${task.title}`;
+            currentStatus.value = task.id;
+
+            editTaskBtn.removeAttribute('class','hidden');
+        })
 
         li.appendChild(h2);
         li.appendChild(p);
