@@ -1,5 +1,3 @@
-
-// const textInput = document.getElementById("textInput");
 const addTaskForm = document.getElementById("addTask")
 const addTaskTitle = document.getElementById("taskTitleInput")
 const addTaskDesc = document.getElementById("taskDescInput")
@@ -8,12 +6,18 @@ const toDoListContainer = document.getElementById("toDoListContainer")
 const toDoList = document.getElementById("toDoList");
 const viewBtns = document.querySelectorAll(".viewBtn"); 
 
+const serchForm = document.getElementById("serchForm"); 
+const searchInput = document.getElementById("serchInput");
+const searchBtn = document.getElementById("submitButton");
+const searchMessage = document.getElementById("searchMessage");
+const cancelSearch = document.getElementById("cancelSearch");
 
 let toDo = [];
 let orgTodo = [];
 
 addTaskForm.addEventListener("submit",function(event){
     event.preventDefault();
+    stopSearch();
 
     const title = addTaskTitle.value.trim();
     const desc = addTaskDesc.value.trim();
@@ -190,3 +194,61 @@ viewBtns.forEach(btn=>{
         }
     })
 })
+
+
+serchForm.addEventListener("submit",(e)=>{
+    e.preventDefault();
+
+    const searchQuery = searchInput.value.trim().toLowerCase(); 
+    searchInput.value="";
+
+    if(searchQuery===""){
+        searchMessage.innerText="ERROR! Search input must not be empty"
+        searchMessage.style.color="red"; 
+    }else{
+
+        toDo = toDo.filter(task=>task.title.toLowerCase().includes(searchQuery))
+        renderList();
+        cancelSearch.classList.remove("hidden")
+
+        if(toDo.length===0){
+            searchMessage.innerText=`ERROR! No tasks contains ${searchQuery}`
+            searchMessage.style.color="red";
+            setTimeout(() => {
+                toDo=orgTodo;
+                renderList();
+            }, 3000); 
+        }else{
+            searchMessage.innerText="Search query submitted"
+            searchMessage.style.color="lightgreen"; 
+        }
+    }
+
+    if(searchMessage.innerText.trim()!==""){
+        setTimeout(() => {
+            searchMessage.innerText="";
+        }, 3000);
+    }
+})
+
+cancelSearch.addEventListener("click",()=>{
+    stopSearch();
+})
+
+function stopSearch(){
+    toDo=orgTodo; 
+    sortList();
+    renderList(); 
+    cancelSearch.classList.add("hidden");
+}
+
+// searchInput.addEventListener("input",()=>{
+//     const searchQuery = searchInput.value.trim(); 
+
+//     if(searchQuery===""){
+//         cancelSearch.classList.add("hidden")
+//     }else{
+//         cancelSearch.classList.remove("hidden")
+//     }
+
+// })

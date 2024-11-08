@@ -1,4 +1,7 @@
 .complete {
-  
     color: lightgreen;
+}
+
+.hidden{
+    display: none;
 }
