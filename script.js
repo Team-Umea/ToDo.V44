@@ -6,8 +6,11 @@ const addTaskDesc = document.getElementById("taskDescInput")
 const submitMessage = document.getElementById("submitMessage")
 const toDoListContainer = document.getElementById("toDoListContainer")
 const toDoList = document.getElementById("toDoList");
+const viewBtns = document.querySelectorAll(".viewBtn"); 
+
 
 let toDo = [];
+let orgTodo = [];
 
 addTaskForm.addEventListener("submit",function(event){
     event.preventDefault();
@@ -47,6 +50,7 @@ addTaskForm.addEventListener("submit",function(event){
             
         }
     }
+    orgTodo = toDo
     resetStatus();
     localStorage.setItem('tasks', JSON.stringify(toDo));
     console.log(localStorage);
@@ -70,13 +74,24 @@ function userMessage (param){
     },3000)
 }
 
+//  demo 
+addTask({id:generateID(),title:"Jag",desc:"Min",isDone:false})
+addTask({id:generateID(),title:"Ska",desc:"Kompis",isDone:false})
+addTask({id:generateID(),title:"Dricka",desc:"Fet",isDone:false})
+addTask({id:generateID(),title:"Öl",desc:"Janne",isDone:false})
+addTask({id:generateID(),title:"Med",desc:"!",isDone:false})
+orgTodo = toDo;
+
 function addTask(taskObj){
     toDo.push(taskObj);
+    sortList();
 }
 
 function resetForm(){
     addTaskTitle.value="";
     addTaskDesc.value="";
+    
+
 }
 
 function generateID(){
@@ -126,10 +141,13 @@ function renderList() {
         const h2 = document.createElement("h2");
         h2.setAttribute("class","taskTitle");
         h2.innerText=task.title;
+        task.isDone? h2.classList.add("complete"): h2.classList.remove("complete")
 
         const p = document.createElement("p");
         p.setAttribute("class","taskDesc");
         p.innerText=task.desc;
+        task.isDone? p.classList.add("complete"): p.classList.remove("complete")
+
 
         const taskDeleteBtn = document.createElement("button");
         taskDeleteBtn.setAttribute("class","taskDeleteBtn");
@@ -145,10 +163,23 @@ function renderList() {
         taskCompleteBtn.innerText="Complete"; 
 
         taskCompleteBtn.addEventListener("click",function(){
-            h2.style.color="green";
-            p.style.color="green";
+            task.isDone = !task.isDone;
+            //  Oscars förklaring 
+            // if(task.isDone===true){
+            //     task.isDone=false;
+            // }else if(task.isDone===false){
+            //     task.isDone=true;
+            // }
+            
+            if (task.isDone) {
+                h2.classList.add("complete");
+                p.classList.add("complete");
+            } else {
+                h2.classList.remove("complete");
+                p.classList.remove("complete");
+            }
+            sortList()
         })
-
         const taskEditBtn = document.createElement("button");
         taskEditBtn.setAttribute("class","taskEditBtn");
         taskEditBtn.innerText="Edit";
@@ -174,7 +205,34 @@ function renderList() {
         li.appendChild(taskEditBtn);
 
         toDoList.appendChild(li);
+    });    
+} 
+
+
+function sortList() {
+    toDo = toDo.sort((a, b) => {
+        return (a.isDone === b.isDone) ? 0 : (a.isDone ? 1 : -1);
     });
+    renderList();
 }
 
+viewBtns.forEach(btn=>{
+    btn.addEventListener("click",()=>{
+        if(btn.checked=true){
+            const whichButton = Array.from(viewBtns).indexOf(btn);
 
+            switch(whichButton){
+                case 0:
+                    toDo = orgTodo
+                    break; 
+                case 1: 
+                    toDo = orgTodo.filter(item=>item.isDone===false);
+                    break; 
+                case 2: 
+                    toDo = orgTodo.filter(item=>item.isDone===true);
+                    break; 
+            }
+            renderList();
+        }
+    })
+})

@@ -10,6 +10,7 @@
     <!-- <input type="text" id="textInput">
     <button onclick="addTask(textInput.value)">Add Button</button> -->
     <div>
+        
         <form id="addTask">
             <p class="hidden" id="currentStatus"></p>
             <input id="taskTitleInput" placeholder="Title">
@@ -19,6 +20,18 @@
             <p id="submitMessage"></p>
         </form>
     </div>
+
+    <div class="button-group">
+        <input type="radio" class="viewBtn" id="viewAll" name="taskView" value="all" checked>
+        <label for="viewAll">View All</label>
+    
+        <input type="radio" class="viewBtn" id="viewTasksLeft" name="taskView" value="left">
+        <label for="viewTasksLeft">View Tasks Left</label>
+    
+        <input type="radio" class="viewBtn" id="viewDoneTasks" name="taskView" value="done">
+        <label for="viewDoneTasks">View Done Tasks</label>
+    </div>
+
 
     <div id="toDoListContainer">
         <ul id="toDoList">
