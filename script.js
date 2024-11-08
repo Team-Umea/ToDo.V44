@@ -6,8 +6,8 @@ const toDoListContainer = document.getElementById("toDoListContainer")
 const toDoList = document.getElementById("toDoList");
 const viewBtns = document.querySelectorAll(".viewBtn"); 
 
-const serchForm = document.getElementById("serchForm"); 
-const searchInput = document.getElementById("serchInput");
+const searchForm = document.getElementById("searchForm"); 
+const searchInput = document.getElementById("searchInput");
 const searchBtn = document.getElementById("submitButton");
 const searchMessage = document.getElementById("searchMessage");
 const cancelSearch = document.getElementById("cancelSearch");
@@ -15,8 +15,8 @@ const cancelSearch = document.getElementById("cancelSearch");
 let toDo = [];
 let orgTodo = [];
 
-if(localStorage.tasks != ""){
-    toDo = JSON.parse(localStorage.tasks);
+if(localStorage.tasks !== undefined){
+    toDo = JSON.parse(localStorage.tasks)||[];
 }
 
 addTaskForm.addEventListener("submit",function(event){
@@ -87,12 +87,12 @@ function userMessage (param){
 }
 
 //  demo 
-addTask({id:generateID(),title:"Jag",desc:"Min",isDone:false})
-addTask({id:generateID(),title:"Ska",desc:"Kompis",isDone:false})
-addTask({id:generateID(),title:"Dricka",desc:"Fet",isDone:false})
-addTask({id:generateID(),title:"Öl",desc:"Janne",isDone:false})
-addTask({id:generateID(),title:"Med",desc:"!",isDone:false})
-orgTodo = toDo;
+// addTask({id:generateID(),title:"Jag",desc:"Min",isDone:false})
+// addTask({id:generateID(),title:"Ska",desc:"Kompis",isDone:false})
+// addTask({id:generateID(),title:"Dricka",desc:"Fet",isDone:false})
+// addTask({id:generateID(),title:"Öl",desc:"Janne",isDone:false})
+// addTask({id:generateID(),title:"Med",desc:"!",isDone:false})
+// orgTodo = toDo;
 
 function addTask(taskObj){
     toDo.push(taskObj);
@@ -241,7 +241,7 @@ viewBtns.forEach(btn=>{
 })
 
 
-serchForm.addEventListener("submit",(e)=>{
+searchForm.addEventListener("submit",(e)=>{
     e.preventDefault();
 
     const searchQuery = searchInput.value.trim().toLowerCase(); 
