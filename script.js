@@ -35,12 +35,12 @@ addTaskForm.addEventListener("submit",function(event){
             userMessage("Success!");
 
             const task = {
-                id: document.getElementById('currentStatus').value,
+                id: document.getElementById('currentStatus').value.id,
                 title:title,
                 desc:desc,
-                isDone:false
+                isDone:document.getElementById('currentStatus').value.isDone
             }
-            
+
             editTask(task);
             renderList();
             resetForm();
@@ -53,7 +53,7 @@ addTaskForm.addEventListener("submit",function(event){
 function editTask(specificTask){
     toDo = toDo.map(task => {
         if(task.id === specificTask.id){
-            return { ...task, title: specificTask.title, desc: specificTask.desc }; // Replace name with "Anonymous"
+            return { ...task, title: specificTask.title, desc: specificTask.desc }; // Replace title and description!!
         }
         return task;
     })
@@ -77,10 +77,6 @@ function resetForm(){
     addTaskDesc.value="";
 }
 
-
-
-
-// let idCounter = 0;
 function generateID(){
     if(toDo.length>0){
         return sortedList = toDo.sort((a,b)=>a.id-b.id)[toDo.length-1].id+1;
@@ -89,22 +85,8 @@ function generateID(){
     }
 }
 
-// function addTask(task) {
-//     const newTask = {
-//         id: generateID(),
-//         taskName: task,
-//         isDone: false
-//     };
-//     // idCounter++;
-//     toDo.push(newTask);
-//     renderList();
-// }
-// addTask("städa");
-
 function deleteTask(id) {
    toDo = toDo.filter((task) => task.id !== id);
-
-//    renderList();
 }
 
 function completeTask(id) {
@@ -131,10 +113,6 @@ function resetStatus(){
 }
 
 function renderList() {
-
-    // const toDoListContainer = document.getElementById("toDoListContainer")
-    // const toDoList = document.getElementById("toDoList");
-
     toDoList.innerHTML=""; //reset ul
 
     toDo.forEach((task) => {
@@ -182,7 +160,7 @@ function renderList() {
 
             currentStatus.removeAttribute('class','hidden');
             currentStatus.innerText = `You are editing task... ${task.title}`;
-            currentStatus.value = task.id;
+            currentStatus.value = {id: task.id, isDone: task.isDone};
 
             editTaskBtn.removeAttribute('class','hidden');
         })
@@ -194,26 +172,6 @@ function renderList() {
         li.appendChild(taskEditBtn);
 
         toDoList.appendChild(li);
-
-
-
-
-
-
-        // const li = document.createElement("li");
-        // const li = document.createElement("li");
-        // const li = document.createElement("li");
-        // const li = document.createElement("li");
-        // const li = document.createElement("li");
-
-
-        // <li class="taskItem">
-        //     <p class="taskTitle">Title</p>
-        //     <p class="taskTitle">Desc</p>
-        //     <button class="taskDeleteBtn">Delete</button>
-        //     <button class="taskCompleteBtn">Compelte</button>
-        //     <button class="taskEditBtn">Edit</button>
-        // </li>
     });
 }
 
