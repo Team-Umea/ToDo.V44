@@ -4,7 +4,8 @@ const addTaskForm = document.getElementById("addTask")
 const addTaskTitle = document.getElementById("taskTitleInput")
 const addTaskDesc = document.getElementById("taskDescInput")
 const submitMessage = document.getElementById("submitMessage")
-const list = document.getElementById("toDoList");
+const toDoListContainer = document.getElementById("toDoListContainer")
+const toDoList = document.getElementById("toDoList");
 
 let toDo = [];
 
@@ -19,17 +20,13 @@ addTaskForm.addEventListener("submit",function(event){
         submitMessage.style.color="red"; 
 
     }else{
-        //append to toDo;
-
-        addTaskTitle.value="";
-        addTaskDesc.value="";
 
         submitMessage.innerText="Success"
         submitMessage.style.color="green"; 
 
         setTimeout(()=>{
             submitMessage.innerText="";
-        },3000)
+        },1500)
 
         const task = {
             id:generateID(),
@@ -37,14 +34,20 @@ addTaskForm.addEventListener("submit",function(event){
             desc:desc,
             isDone:false
         }
-        addTask(task);
+        addTask(task);//toDo.push(task);
         renderList();
+        resetForm(); //addTaskTitle.value=""; addTaskDesc.value="";
     }
 
 })
 
 function addTask(taskObj){
     toDo.push(taskObj);
+}
+
+function resetForm(){
+    addTaskTitle.value="";
+    addTaskDesc.value="";
 }
 
 
@@ -74,7 +77,7 @@ function generateID(){
 function deleteTask(id) {
    toDo = toDo.filter((task) => task.id !== id);
 
-   renderList();
+//    renderList();
 }
 
 function completeTask(id) {
@@ -88,13 +91,76 @@ function completeTask(id) {
 }
 
 function renderList() {
-    let text = "";
 
-    toDo.forEach( (task) => {
-        text += `<li><p>${task.title}</p><button onclick="deleteTask(${task.id})">delete</button><button onclick="completeTask(${task.id})">klar</button></li>`;
+    // const toDoListContainer = document.getElementById("toDoListContainer")
+    // const toDoList = document.getElementById("toDoList");
 
+    toDoList.innerHTML=""; //reset ul
+
+    toDo.forEach((task) => {
+
+        //Created html li element with class of taskItem
+        const li = document.createElement("li");
+        li.setAttribute("class","taskItem");
+
+        const h2 = document.createElement("h2");
+        h2.setAttribute("class","taskTitle");
+        h2.innerText=task.title;
+
+        const p = document.createElement("p");
+        p.setAttribute("class","taskDesc");
+        p.innerText=task.desc;
+
+        const taskDeleteBtn = document.createElement("button");
+        taskDeleteBtn.setAttribute("class","taskDeleteBtn");
+        taskDeleteBtn.innerText="Delete"; //later add x mark
+
+        taskDeleteBtn.addEventListener("click",function(){
+            li.remove();
+            deleteTask(task.id); //call delete function to remove task from toDo arrray
+        })
+
+        const taskCompleteBtn = document.createElement("button");
+        taskCompleteBtn.setAttribute("class","taskCompleteBtn");
+        taskCompleteBtn.innerText="Complete"; 
+
+        taskCompleteBtn.addEventListener("click",function(){
+            h2.style.color="green";
+            p.style.color="green";
+        })
+
+        const taskEditBtn = document.createElement("button");
+        taskEditBtn.setAttribute("class","taskEditBtn");
+        taskEditBtn.innerText="Edit"; 
+
+        li.appendChild(h2);
+        li.appendChild(p);
+        li.appendChild(taskDeleteBtn);
+        li.appendChild(taskCompleteBtn);
+        li.appendChild(taskEditBtn);
+
+        toDoList.appendChild(li);
+
+
+
+
+
+
+        // const li = document.createElement("li");
+        // const li = document.createElement("li");
+        // const li = document.createElement("li");
+        // const li = document.createElement("li");
+        // const li = document.createElement("li");
+
+
+        // <li class="taskItem">
+        //     <p class="taskTitle">Title</p>
+        //     <p class="taskTitle">Desc</p>
+        //     <button class="taskDeleteBtn">Delete</button>
+        //     <button class="taskCompleteBtn">Compelte</button>
+        //     <button class="taskEditBtn">Edit</button>
+        // </li>
     });
-    list.innerHTML = text;
 }
 
 
