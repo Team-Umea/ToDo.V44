@@ -48,6 +48,8 @@ addTaskForm.addEventListener("submit",function(event){
         }
     }
     resetStatus();
+    localStorage.setItem('tasks', JSON.stringify(toDo));
+    console.log(localStorage);
 })
 
 function editTask(specificTask){
