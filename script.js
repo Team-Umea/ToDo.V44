@@ -7,9 +7,11 @@ const submitMessage = document.getElementById("submitMessage")
 const toDoListContainer = document.getElementById("toDoListContainer")
 const toDoList = document.getElementById("toDoList");
 const sortListBtn =document.getElementById("sortList");
+const viewBtns = document.querySelectorAll(".viewBtn"); 
 
 
 let toDo = [];
+let orgTodo = [];
 
 addTaskForm.addEventListener("submit",function(event){
     event.preventDefault();
@@ -39,13 +41,21 @@ addTaskForm.addEventListener("submit",function(event){
         addTask(task);//toDo.push(task);
         renderList();
         resetForm(); //addTaskTitle.value=""; addTaskDesc.value="";
+        orgTodo = toDo
     }
 
 }) 
-
+//  demo 
+addTask({id:generateID(),title:"Jag",desc:"Min",isDone:false})
+addTask({id:generateID(),title:"Ska",desc:"Kompis",isDone:false})
+addTask({id:generateID(),title:"Dricka",desc:"Fet",isDone:false})
+addTask({id:generateID(),title:"Öl",desc:"Janne",isDone:false})
+addTask({id:generateID(),title:"Med",desc:"!",isDone:false})
+orgTodo = toDo;
 
 function addTask(taskObj){
     toDo.push(taskObj);
+    sortList();
 }
 
 function resetForm(){
@@ -71,7 +81,7 @@ function generateID(){
 
 function deleteTask(id) {
    toDo = toDo.filter((task) => task.id !== id);
-   toDo
+   
 }
 
 function completeTask(id) {
@@ -154,19 +164,31 @@ function renderList() {
     });    
 } 
 
-// sortListBtn.addEventListener("click" , function () {
-//     // toDo = toDo.sort()
-//     toDo = toDo.sort((a, b) => {
-   
-//         return (a.isDone === b.isDone) ? 0 : (a.isDone ? 1 : -1);
-//     });
-//     console.log("triggerd");
-//     renderList();
-    
-// })
+
 function sortList() {
     toDo = toDo.sort((a, b) => {
         return (a.isDone === b.isDone) ? 0 : (a.isDone ? 1 : -1);
     });
     renderList();
 }
+
+viewBtns.forEach(btn=>{
+    btn.addEventListener("click",()=>{
+        if(btn.checked=true){
+            const whichButton = Array.from(viewBtns).indexOf(btn);
+
+            switch(whichButton){
+                case 0:
+                    toDo = orgTodo
+                    break; 
+                case 1: 
+                    toDo = orgTodo.filter(item=>item.isDone===false);
+                    break; 
+                case 2: 
+                    toDo = orgTodo.filter(item=>item.isDone===true);
+                    break; 
+            }
+            renderList();
+        }
+    })
+})
