@@ -6,6 +6,8 @@ const addTaskDesc = document.getElementById("taskDescInput")
 const submitMessage = document.getElementById("submitMessage")
 const toDoListContainer = document.getElementById("toDoListContainer")
 const toDoList = document.getElementById("toDoList");
+const sortListBtn =document.getElementById("sortList");
+
 
 let toDo = [];
 
@@ -32,14 +34,15 @@ addTaskForm.addEventListener("submit",function(event){
             id:generateID(),
             title:title,
             desc:desc,
-            isDone:false
+            isDone:false,
         }
         addTask(task);//toDo.push(task);
         renderList();
         resetForm(); //addTaskTitle.value=""; addTaskDesc.value="";
     }
 
-})
+}) 
+
 
 function addTask(taskObj){
     toDo.push(taskObj);
@@ -48,6 +51,8 @@ function addTask(taskObj){
 function resetForm(){
     addTaskTitle.value="";
     addTaskDesc.value="";
+    
+
 }
 
 
@@ -66,6 +71,7 @@ function generateID(){
 
 function deleteTask(id) {
    toDo = toDo.filter((task) => task.id !== id);
+   toDo
 }
 
 function completeTask(id) {
@@ -132,9 +138,8 @@ function renderList() {
                 h2.classList.remove("complete");
                 p.classList.remove("complete");
             }
- 
+            sortList()
         })
-
         const taskEditBtn = document.createElement("button");
         taskEditBtn.setAttribute("class","taskEditBtn");
         taskEditBtn.innerText="Edit"; 
@@ -149,4 +154,19 @@ function renderList() {
     });    
 } 
 
-
+// sortListBtn.addEventListener("click" , function () {
+//     // toDo = toDo.sort()
+//     toDo = toDo.sort((a, b) => {
+   
+//         return (a.isDone === b.isDone) ? 0 : (a.isDone ? 1 : -1);
+//     });
+//     console.log("triggerd");
+//     renderList();
+    
+// })
+function sortList() {
+    toDo = toDo.sort((a, b) => {
+        return (a.isDone === b.isDone) ? 0 : (a.isDone ? 1 : -1);
+    });
+    renderList();
+}
