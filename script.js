@@ -86,14 +86,6 @@ function userMessage (param){
     },3000)
 }
 
-//  demo 
-// addTask({id:generateID(),title:"Jag",desc:"Min",isDone:false})
-// addTask({id:generateID(),title:"Ska",desc:"Kompis",isDone:false})
-// addTask({id:generateID(),title:"Dricka",desc:"Fet",isDone:false})
-// addTask({id:generateID(),title:"Öl",desc:"Janne",isDone:false})
-// addTask({id:generateID(),title:"Med",desc:"!",isDone:false})
-// orgTodo = toDo;
-
 function addTask(taskObj){
     toDo.push(taskObj);
     sortList();
@@ -203,9 +195,9 @@ function renderList() {
 
         li.appendChild(h2);
         li.appendChild(p);
-        li.appendChild(taskDeleteBtn);
         li.appendChild(taskCompleteBtn);
         li.appendChild(taskEditBtn);
+        li.appendChild(taskDeleteBtn);
 
         toDoList.appendChild(li);
     });    

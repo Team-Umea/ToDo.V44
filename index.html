@@ -8,22 +8,27 @@
 </head>
 <body>
     <header>
-        <h1>Keep your code... in your browser... forever.... ever... ever...</h1>
-        <button id="saveToLocalStorage">Save to Local Storage!</button>
+        <h1>Welcome to ToDo!</h1>
     </header>
-    <div>
-        
+
+    <section class="localStorageContainer">
+        <h2>Keep your code... in your browser... forever.... <span class="textSmall">ever...</span> <span class="textSmaller">ever...</span></h2>
+        <h3>Save your tasks to Local Storage</h3>
+        <button title="Save tasks to Local Storage" id="saveToLocalStorage">Save tasks</button>
+    </section>
+
+    <section class="addTaskContainer">
         <form id="addTask">
             <p class="hidden" id="currentStatus"></p>
-            <input id="taskTitleInput" placeholder="Title">
-            <input id="taskDescInput" placeholder="Describe task">
+            <input id="taskTitleInput" type="text" placeholder="Title">
+            <input id="taskDescInput" type="text" placeholder="Describe task">
             <button id="submit" type="submit">Add Task</button>
             <button id="editTask" class="hidden" type="submit">Finish editing task</button>
             <p id="submitMessage"></p>
         </form>
-    </div>
+    </section>
 
-    <div class="button-group">
+    <section class="button-group">
         <input type="radio" class="viewBtn" id="viewAll" name="taskView" value="all" checked>
         <label for="viewAll">View All</label>
     
@@ -32,20 +37,20 @@
     
         <input type="radio" class="viewBtn" id="viewDoneTasks" name="taskView" value="done">
         <label for="viewDoneTasks">View Done Tasks</label>
-    </div>
+    </section>
 
-    <div id="search">
+    <section id="search">
         <button id="cancelSearch" class="hidden">Cancel Search</button>
         <form id="searchForm">
-            <input id="searchInput" placeholder="Search by task title">
+            <input id="searchInput" type="text" placeholder="Search by task title">
             <button type="submit" id="submitButton">Search</button>
             <p id="searchMessage"></p>
         </form>
-    </div>
+    </section>
 
-    <div id="toDoListContainer">
+    <section id="toDoListContainer">
         <ul id="toDoList"></ul>
-    </div>
+    </section>
     
 
     <script src="script.js"></script>
