@@ -20,6 +20,7 @@ let orgTodo = [];
 
 if(localStorage.tasks !== undefined){
     toDo = JSON.parse(localStorage.tasks)||[];
+    orgTodo = toDo; //Must do this otherwise we just remove everyting after we add something after reload. This is because if we dont, toDo and orgTodo won't match
 }
 
 addTaskForm.addEventListener("submit",function(event){
@@ -31,7 +32,7 @@ addTaskForm.addEventListener("submit",function(event){
     
     const tempTags = [tag1,tag2,tag3];
     const tags = [];
-    tempTags.forEach((tag) => {
+    tempTags.forEach((tag) => { //checks if any of the checkboxes are checked. If they are we add the unicode value as a string into the tags array on the object.
         if(tag.checked){
             tags.push(tag.value);
         }
@@ -62,6 +63,7 @@ addTaskForm.addEventListener("submit",function(event){
                 id: document.getElementById('currentStatus').value.id,
                 title:title,
                 desc:desc,
+                tags:tags,
                 isDone:document.getElementById('currentStatus').value.isDone
             }
 
@@ -71,7 +73,7 @@ addTaskForm.addEventListener("submit",function(event){
             
         }
     }
-    orgTodo = toDo
+    orgTodo = toDo;
     resetStatus();
     localStorage.setItem('tasks', JSON.stringify(toDo));
     console.log(localStorage);
@@ -82,9 +84,16 @@ saveToLocalStorage.addEventListener("click", (e)=>{
 })
 
 function editTask(specificTask){
+    const tempTags = [tag1,tag2,tag3];
     toDo = toDo.map(task => {
         if(task.id === specificTask.id){
-            return { ...task, title: specificTask.title, desc: specificTask.desc }; // Replace title and description!!
+            const tags = [];
+            tempTags.forEach((tag) => { 
+                if(tag.checked){
+                    tags.push(tag.value);
+                }
+            });
+            return { ...task, title: specificTask.title, desc: specificTask.desc, tags:tags }; // Replace title and description!!
         }
         return task;
     })
@@ -170,10 +179,10 @@ function renderList() {
             startText.innerText = "Tags: ";
             startText.setAttribute("class", "taskTag");
             tagsWrapper.appendChild(startText);
-            task.tags.forEach((tag)=>{
+            task.tags.forEach((tag)=>{  //task.tags is an array that contains strings with unicode values of emojis
                 let newTag = document.createElement("p");
                 newTag.setAttribute("class", "taskTag");
-                newTag.innerText =  String.fromCodePoint(tag);
+                newTag.innerText =  String.fromCodePoint(tag);  //this is the function that makes the unicode into an emoji
                 tagsWrapper.appendChild(newTag);
             });
             
@@ -250,7 +259,7 @@ viewBtns.forEach(btn=>{
 
             switch(whichButton){
                 case 0:
-                    toDo = orgTodo
+                    toDo = orgTodo;
                     break; 
                 case 1: 
                     toDo = orgTodo.filter(item=>item.isDone===false);
@@ -313,6 +322,7 @@ function stopSearch(){
 window.onload = function(){
     if(localStorage.tasks !== undefined){
         toDo = JSON.parse(localStorage.tasks);
+        orgTodo = toDo;
     }
     renderList();
 }
