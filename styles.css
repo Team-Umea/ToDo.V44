@@ -5,3 +5,35 @@
 .complete{
     color:green;
 }
+.taskTag{
+    width:min-content;
+    display:inline-block;
+}
+
+#tag1::before{
+    content:"\1f393"; /*student cap unicode*/
+    font-size:2rem;
+}
+#tag2::before{
+    content:"\1f9f9"; /*broom unicode*/
+    font-size:2rem;
+}
+#tag3::before{
+    content:"\1f468"; /*office worker unicode*/
+    font-size: 2rem;
+}
+.taskBtn{
+    appearance: none;
+    opacity: 50%;
+    transition: ease-in-out 0.1s;
+    -webkit-transition: ease-in-out 0.1s;
+    -moz-transition: ease-in-out 0.1s;
+    -ms-transition: ease-in-out 0.1s;
+    -o-transition: ease-in-out 0.1s;
+}
+.taskBtn:hover{
+    scale: 1.05;
+}
+.taskBtn:checked{
+    opacity: 100%;
+}

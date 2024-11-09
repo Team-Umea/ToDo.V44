@@ -5,6 +5,9 @@ const submitMessage = document.getElementById("submitMessage")
 const toDoListContainer = document.getElementById("toDoListContainer")
 const toDoList = document.getElementById("toDoList");
 const viewBtns = document.querySelectorAll(".viewBtn"); 
+const tag1 = document.getElementById("tag1");
+const tag2 = document.getElementById("tag2");
+const tag3 = document.getElementById("tag3");
 
 const searchForm = document.getElementById("searchForm"); 
 const searchInput = document.getElementById("searchInput");
@@ -25,6 +28,15 @@ addTaskForm.addEventListener("submit",function(event){
 
     const title = addTaskTitle.value.trim();
     const desc = addTaskDesc.value.trim();
+    
+    const tempTags = [tag1,tag2,tag3];
+    const tags = [];
+    tempTags.forEach((tag) => {
+        if(tag.checked){
+            tags.push(tag.value);
+        }
+    });
+    
 
     if (title === "" || desc === "") { 
         submitMessage.innerText="ERROR! Both fields must not be empty"
@@ -37,6 +49,7 @@ addTaskForm.addEventListener("submit",function(event){
                 id:generateID(),
                 title:title,
                 desc:desc,
+                tags:tags,
                 isDone:false
             }
             addTask(task);//toDo.push(task);
@@ -149,6 +162,23 @@ function renderList() {
         p.setAttribute("class","taskDesc");
         p.innerText=task.desc;
         task.isDone? p.classList.add("complete"): p.classList.remove("complete")
+        
+        const tagsWrapper= document.createElement("div");
+        tagsWrapper.setAttribute("class", "taskTagsWrapper");
+        if(task.tags.length > 0){
+            const startText = document.createElement("p");
+            startText.innerText = "Tags: ";
+            startText.setAttribute("class", "taskTag");
+            tagsWrapper.appendChild(startText);
+            task.tags.forEach((tag)=>{
+                let newTag = document.createElement("p");
+                newTag.setAttribute("class", "taskTag");
+                newTag.innerText =  String.fromCodePoint(tag);
+                tagsWrapper.appendChild(newTag);
+            });
+            
+        }
+
 
 
         const taskDeleteBtn = document.createElement("button");
@@ -195,9 +225,11 @@ function renderList() {
 
         li.appendChild(h2);
         li.appendChild(p);
+        li.appendChild(tagsWrapper);
         li.appendChild(taskCompleteBtn);
         li.appendChild(taskEditBtn);
         li.appendChild(taskDeleteBtn);
+        
 
         toDoList.appendChild(li);
     });    
@@ -277,4 +309,10 @@ function stopSearch(){
     sortList();
     renderList(); 
     cancelSearch.classList.add("hidden");
+}
+window.onload = function(){
+    if(localStorage.tasks !== undefined){
+        toDo = JSON.parse(localStorage.tasks);
+    }
+    renderList();
 }
