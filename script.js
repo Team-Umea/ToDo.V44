@@ -313,20 +313,3 @@ function stopSearch() {
   renderList();
   cancelSearch.classList.add("hidden");
 }
-
-// // function loadFromLocalStorage() {
-// //   if (localStorage.tasks !== undefined) {
-// //     toDo = JSON.parse(localStorage.tasks);
-// //     orgTodo = toDo;
-// //   }
-// //   renderList();
-// // }
-
-// window.onload = function () {
-//   //   if (localStorage.tasks !== undefined) {
-//   //     toDo = JSON.parse(localStorage.tasks);
-//   //     orgTodo = toDo;
-//   //   }
-//   //   renderList();
-//   //   loadFromLocalStorage();
-// };
