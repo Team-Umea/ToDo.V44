@@ -181,7 +181,7 @@ function renderList() {
 
     const tagsWrapper = document.createElement("div");
     tagsWrapper.setAttribute("class", "taskTagsWrapper");
-    if (task.tags.length > 0) {
+    if ( task.tags !== undefined && task.tags.length > 0) {
       const startText = document.createElement("p");
       startText.innerText = "Tags: ";
       startText.setAttribute("class", "taskTag");
