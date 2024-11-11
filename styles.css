@@ -1,39 +1,204 @@
-.hidden{
-    display:none
+/* General Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
 }
 
-.complete{
-    color:green;
-}
-.taskTag{
-    width:min-content;
-    display:inline-block;
+/* Body Styling */
+body {
+    background-color: #f4f4f9;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+    flex-direction: column;
 }
 
-#tag1::before{
-    content:"\1f393"; /*student cap unicode*/
-    font-size:2rem;
+/* Header */
+header {
+    text-align: center;
+    margin-bottom: 20px;
 }
-#tag2::before{
-    content:"\1f9f9"; /*broom unicode*/
-    font-size:2rem;
+header h1 {
+    font-size: 2.5rem;
+    color: #555;
 }
-#tag3::before{
-    content:"\1f468"; /*office worker unicode*/
+
+/* Section Containers */
+section {
+    width: 100%;
+    max-width: 600px;
+    margin-bottom: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+}
+
+/* Button Styling */
+button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    margin-top: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+.taskDeleteBtn {
+    background-color: RED;
+}
+.taskEditBtn {
+    background-color: #d6ab2a;
+}
+.taskCompleteBtn:hover {
+    background-color: #45a049;
+}
+input[type="radio"]:checked + viewAll{
+    background-color: #00796b;
+}
+
+/* Form Input Styling */
+input[type="text"] {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+/* Button Group Styling */
+.button-group label {
+    margin-right: 15px;
+    font-size: 1rem;
+    color: #555;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 5px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.viewBtn {
+    display: none; /* Hide radio buttons */
+}
+
+/* Style active sort option */
+input[type="radio"]:checked + label {
+    background-color: #00796b;
+    color: white;
+}
+
+/* Checkbox Styling */
+input[type="checkbox"] {
+    margin-right: 8px;
+}
+
+/* Task List */
+#toDoListContainer {
+    margin-top: 20px;
+}
+#toDoList {
+    list-style-type: none;
+}
+
+.taskItem {
+    display: flex;
+    flex-direction: column;
+    background: #f8f9fa;
+    border: 1px solid #ddd;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+}
+
+.taskTitle {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.taskDesc {
+    font-size: 1rem;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.taskTagsWrapper {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+/* Tag Styling */
+.taskTag {
+    background-color: #e0f7fa;
+    color: #00796b;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    margin-right: 5px;
+    width: min-content;
+    display: inline-block;
+}
+
+/* Button Group Styling */
+.button-group label {
+    margin-right: 15px;
+    font-size: 1rem;
+    color: #555;
+}
+
+.viewBtn {
+    display: none;
+}
+
+/* Complete Task Styling */
+.complete {
+    color: green;
+    text-decoration: line-through;
+}
+
+/* Hidden elements */
+.hidden {
+    display: none;
+}
+
+/* Status Messages */
+#submitMessage,
+#searchMessage {
+    font-size: 0.9rem;
+    color: red;
+    margin-top: 10px;
+}
+
+/* Tag Checkbox Custom Styling */
+#tag1::before {
+    content: "\1f393"; /* student cap unicode */
     font-size: 2rem;
 }
-.taskBtn{
+#tag2::before {
+    content: "\1f9f9"; /* broom unicode */
+    font-size: 2rem;
+}
+#tag3::before {
+    content: "\1f468"; /* office worker unicode */
+    font-size: 2rem;
+}
+
+.taskBtn {
     appearance: none;
     opacity: 50%;
-    transition: ease-in-out 0.1s;
-    -webkit-transition: ease-in-out 0.1s;
-    -moz-transition: ease-in-out 0.1s;
-    -ms-transition: ease-in-out 0.1s;
-    -o-transition: ease-in-out 0.1s;
+    transition: opacity 0.1s ease-in-out, transform 0.1s ease-in-out;
 }
-.taskBtn:hover{
-    scale: 1.05;
+.taskBtn:hover {
+    transform: scale(1.05);
 }
-.taskBtn:checked{
+.taskBtn:checked {
     opacity: 100%;
 }
