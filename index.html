@@ -1,63 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
     <header>
-        <h1>Welcome to ToDo!</h1>
+      <h1>Welcome to ToDo!</h1>
     </header>
 
-    <section class="localStorageContainer">
-        <h2>Keep your code... in your browser... forever.... <span class="textSmall">ever...</span> <span class="textSmaller">ever...</span></h2>
-        <h3>Save your tasks to Local Storage</h3>
-        <button title="Save tasks to Local Storage" id="saveToLocalStorage">Save tasks</button>
-    </section>
-
     <section class="addTaskContainer">
-        <form id="addTask">
-            <p class="hidden" id="currentStatus"></p>
-            <input id="taskTitleInput" type="text" placeholder="Title">
-            <input id="taskDescInput" type="text" placeholder="Describe task">
+      <button title="Save tasks to Local Storage" id="saveToLocalStorage">Save tasks</button>
 
-            <input type="checkbox" id="tag1" class="taskBtn" name="tag1" value="0x1f393">
-            <input type="checkbox" id="tag2" class="taskBtn" name="tag2" value="0x1f9f9">
-            <input type="checkbox" id="tag3" class="taskBtn" name="tag3" value="0x1f468">
+      <form id="addTask">
+        <p class="hidden" id="currentStatus"></p>
+        <input id="taskTitleInput" type="text" placeholder="Title" />
+        <input id="taskDescInput" type="text" placeholder="Describe task" />
 
-            <button id="submit" type="submit">Add Task</button>
-            <button id="editTask" class="hidden" type="submit">Finish editing task</button>
-            <p id="submitMessage"></p>
-        </form>
+        <input type="checkbox" id="tag1" class="taskBtn" name="tag1" value="0x1f393" />
+        <input type="checkbox" id="tag2" class="taskBtn" name="tag2" value="0x1f9f9" />
+        <input type="checkbox" id="tag3" class="taskBtn" name="tag3" value="0x1f468" />
+
+        <button id="submit" type="submit">Add Task</button>
+        <button id="editTask" class="hidden" type="submit">Finish editing task</button>
+        <p id="submitMessage"></p>
+      </form>
     </section>
 
     <section class="button-group">
-        <input type="radio" class="viewBtn" id="viewAll" name="taskView" value="all" checked>
-        <label for="viewAll">View All</label>
-    
-        <input type="radio" class="viewBtn" id="viewTasksLeft" name="taskView" value="left">
-        <label for="viewTasksLeft">View Tasks Left</label>
-    
-        <input type="radio" class="viewBtn" id="viewDoneTasks" name="taskView" value="done">
-        <label for="viewDoneTasks">View Done Tasks</label>
+      <input type="radio" class="viewBtn" id="viewAll" name="taskView" value="all" checked />
+      <label for="viewAll">View All</label>
+
+      <input type="radio" class="viewBtn" id="viewTasksLeft" name="taskView" value="left" />
+      <label for="viewTasksLeft">View Tasks Left</label>
+
+      <input type="radio" class="viewBtn" id="viewDoneTasks" name="taskView" value="done" />
+      <label for="viewDoneTasks">View Done Tasks</label>
     </section>
 
     <section id="search">
-        <button id="cancelSearch" class="hidden">Cancel Search</button>
-        <form id="searchForm">
-            <input id="searchInput" type="text" placeholder="Search by task title">
-            <button type="submit" id="submitButton">Search</button>
-            <p id="searchMessage"></p>
-        </form>
+      <button id="cancelSearch" class="hidden">Cancel Search</button>
+      <form id="searchForm">
+        <input id="searchInput" type="text" placeholder="Search by task title" />
+        <button type="submit" id="submitButton">Search</button>
+        <p id="searchMessage"></p>
+      </form>
     </section>
 
     <section id="toDoListContainer">
-        <ul id="toDoList"></ul>
+      <ul id="toDoList"></ul>
     </section>
-    
 
     <script src="script.js"></script>
-</body>
+  </body>
 </html>
