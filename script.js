@@ -23,7 +23,7 @@ if (localStorage.tasks !== undefined) {
   orgTodo = toDo;
   renderList();
 }
-
+ // Frank
 addTaskForm.addEventListener("submit", function (event) {
   event.preventDefault();
   stopSearch();
@@ -83,7 +83,7 @@ saveToLocalStorage.addEventListener("click", (e) => {
   orgTodo = toDo;
   localStorage.setItem("tasks", JSON.stringify(toDo));
 });
-
+//  Elias Start
 function editTask(specificTask) {
   const tempTags = [tag1, tag2, tag3];
   toDo = toDo.map((task) => {
@@ -99,7 +99,16 @@ function editTask(specificTask) {
     return task;
   });
 }
+function resetStatus() {
+  const editTaskBtn = document.getElementById("editTask");
+  const currentStatus = document.getElementById("currentStatus");
 
+  currentStatus.setAttribute("class", "hidden");
+  currentStatus.innerText = "";
+  currentStatus.removeAttribute("value");
+
+  editTaskBtn.setAttribute("class", "hidden");
+}
 //Error handling
 function userMessage(param) {
   submitMessage.innerText = param;
@@ -108,7 +117,8 @@ function userMessage(param) {
     submitMessage.innerText = "";
   }, 3000);
 }
-
+//  Elias slut 
+// Tobias börjar här
 function addTask(taskObj) {
   toDo.push(taskObj);
   sortList();
@@ -141,19 +151,16 @@ function completeTask(id) {
   }
   renderList();
 }
-
-//Resets classes and status message
-function resetStatus() {
-  const editTaskBtn = document.getElementById("editTask");
-  const currentStatus = document.getElementById("currentStatus");
-
-  currentStatus.setAttribute("class", "hidden");
-  currentStatus.innerText = "";
-  currentStatus.removeAttribute("value");
-
-  editTaskBtn.setAttribute("class", "hidden");
+function sortList() {
+  toDo = toDo.sort((a, b) => {
+    return a.isDone === b.isDone ? 0 : a.isDone ? 1 : -1;
+  });
+  renderList();
 }
 
+
+//  Tobias slut 
+// Robin börjar 
 function renderList() {
   toDoList.innerHTML = ""; //reset ul
 
@@ -240,14 +247,9 @@ function renderList() {
     toDoList.appendChild(li);
   });
 }
+//  Robin slut 
 
-function sortList() {
-  toDo = toDo.sort((a, b) => {
-    return a.isDone === b.isDone ? 0 : a.isDone ? 1 : -1;
-  });
-  renderList();
-}
-
+//  Oscar börjar här 
 viewBtns.forEach((btn) => {
   btn.addEventListener("click", () => {
     if ((btn.checked = true)) {
@@ -313,3 +315,4 @@ function stopSearch() {
   renderList();
   cancelSearch.classList.add("hidden");
 }
+//  Oscar Slutar här 
