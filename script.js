@@ -8,7 +8,6 @@ const viewBtns = document.querySelectorAll(".viewBtn");
 const tag1 = document.getElementById("tag1");
 const tag2 = document.getElementById("tag2");
 const tag3 = document.getElementById("tag3");
-
 const searchForm = document.getElementById("searchForm");
 const searchInput = document.getElementById("searchInput");
 const searchBtn = document.getElementById("submitButton");
@@ -17,13 +16,121 @@ const cancelSearch = document.getElementById("cancelSearch");
 
 let toDo = [];
 let orgTodo = [];
+const IP = "https://todobackend-vuxr.onrender.com/";
+const getEndPoint = IP + "tasks";
+const addEndPoint = IP + "addTask";
+const deleteEndPoint = IP + "deleteTask";
+const editEndPoint = IP + "editTask";
+const completeEndPoint = IP + "completeTask";
 
-if (localStorage.tasks !== undefined) {
-  toDo = JSON.parse(localStorage.tasks) || [];
+async function load() {
+  toDo = await getTasks();
+  console.log("toDo", toDo);
   orgTodo = toDo;
   renderList();
 }
- // Frank
+
+load();
+
+async function getTasks() {
+  try {
+    const res = await fetch(getEndPoint);
+    return (users = await res.json());
+  } catch (error) {
+    console.log("There was a problem fetching users");
+  }
+}
+
+async function addTask(task) {
+  try {
+    const response = await fetch(addEndPoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ task: task }),
+    });
+    const status = await response.json();
+    if (status.ok) {
+      toDo = status.tasks;
+      orgTodo = toDo;
+      sortList();
+      renderList();
+    }
+  } catch (error) {
+    console.log("Error", error);
+  }
+}
+
+async function deleteTask(id) {
+  try {
+    const response = await fetch(deleteEndPoint, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ id: id }),
+    });
+    if (response.ok) {
+      const status = await response.json();
+      if (status.ok) {
+        toDo = status.tasks;
+        orgTodo = toDo;
+        sortList();
+        renderList();
+      }
+    }
+  } catch (error) {
+    console.log("Error", error);
+  }
+}
+
+async function editTaskOnServer(tasks) {
+  try {
+    const response = await fetch(editEndPoint, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ tasks: tasks }),
+    });
+    if (response.ok) {
+      const status = await response.json();
+      if (status.ok) {
+        toDo = status.tasks;
+        orgTodo = toDo;
+        sortList();
+        renderList();
+      }
+    }
+  } catch (error) {
+    console.log("Error", error);
+  }
+}
+
+async function completeTask(id) {
+  try {
+    const response = await fetch(completeEndPoint, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ id: id }),
+    });
+    if (response.ok) {
+      const status = await response.json();
+      if (status.ok) {
+        toDo = status.tasks;
+        orgTodo = toDo;
+        sortList();
+        renderList();
+      }
+    }
+  } catch (error) {
+    console.log("Error", error);
+  }
+}
+
 addTaskForm.addEventListener("submit", function (event) {
   event.preventDefault();
   stopSearch();
@@ -34,7 +141,6 @@ addTaskForm.addEventListener("submit", function (event) {
   const tempTags = [tag1, tag2, tag3];
   const tags = [];
   tempTags.forEach((tag) => {
-    //checks if any of the checkboxes are checked. If they are we add the unicode value as a string into the tags array on the object.
     if (tag.checked) {
       tags.push(tag.value);
     }
@@ -45,19 +151,17 @@ addTaskForm.addEventListener("submit", function (event) {
     submitMessage.style.color = "red";
   } else {
     if (event.submitter.id === document.getElementById("submit").id) {
-      //   loadFromLocalStorage();
       userMessage("Success!");
 
       const task = {
-        id: generateID(),
         title: title,
         desc: desc,
         tags: tags,
-        isDone: false,
       };
-      addTask(task); //toDo.push(task);
+
+      addTask(task);
       renderList();
-      resetForm(); //addTaskTitle.value=""; addTaskDesc.value="";
+      resetForm();
     } else if (event.submitter.id === document.getElementById("editTask").id) {
       userMessage("Success!");
 
@@ -70,7 +174,7 @@ addTaskForm.addEventListener("submit", function (event) {
       };
 
       editTask(task);
-      renderList();
+      editTaskOnServer(toDo);
       resetForm();
     }
   }
@@ -83,7 +187,7 @@ saveToLocalStorage.addEventListener("click", (e) => {
   orgTodo = toDo;
   localStorage.setItem("tasks", JSON.stringify(toDo));
 });
-//  Elias Start
+
 function editTask(specificTask) {
   const tempTags = [tag1, tag2, tag3];
   toDo = toDo.map((task) => {
@@ -94,11 +198,12 @@ function editTask(specificTask) {
           tags.push(tag.value);
         }
       });
-      return { ...task, title: specificTask.title, desc: specificTask.desc, tags: tags }; // Replace title and description!!
+      return { ...task, title: specificTask.title, desc: specificTask.desc, tags: tags };
     }
     return task;
   });
 }
+
 function resetStatus() {
   const editTaskBtn = document.getElementById("editTask");
   const currentStatus = document.getElementById("currentStatus");
@@ -109,7 +214,7 @@ function resetStatus() {
 
   editTaskBtn.setAttribute("class", "hidden");
 }
-//Error handling
+
 function userMessage(param) {
   submitMessage.innerText = param;
   submitMessage.style.color = "green";
@@ -117,40 +222,12 @@ function userMessage(param) {
     submitMessage.innerText = "";
   }, 3000);
 }
-//  Elias slut 
-// Tobias börjar här
-function addTask(taskObj) {
-  toDo.push(taskObj);
-  sortList();
-}
 
 function resetForm() {
   addTaskTitle.value = "";
   addTaskDesc.value = "";
 }
 
-function generateID() {
-  if (toDo.length > 0) {
-    return toDo.sort((a, b) => a.id - b.id)[toDo.length - 1].id + 1;
-  } else {
-    return 0;
-  }
-}
-
-function deleteTask(id) {
-  toDo = toDo.filter((task) => task.id !== id);
-  orgTodo = toDo;
-}
-
-function completeTask(id) {
-  id = parseInt(id);
-  for (let i = 0; i < toDo.length; i++) {
-    if (toDo[i].id === id) {
-      toDo[i].isDone = true;
-    }
-  }
-  renderList();
-}
 function sortList() {
   toDo = toDo.sort((a, b) => {
     return a.isDone === b.isDone ? 0 : a.isDone ? 1 : -1;
@@ -158,14 +235,10 @@ function sortList() {
   renderList();
 }
 
-
-//  Tobias slut 
-// Robin börjar 
 function renderList() {
-  toDoList.innerHTML = ""; //reset ul
+  toDoList.innerHTML = "";
 
   toDo.forEach((task) => {
-    //Created html li element with class of taskItem
     const li = document.createElement("li");
     li.setAttribute("class", "taskItem");
 
@@ -181,16 +254,15 @@ function renderList() {
 
     const tagsWrapper = document.createElement("div");
     tagsWrapper.setAttribute("class", "taskTagsWrapper");
-    if ( task.tags !== undefined && task.tags.length > 0) {
+    if (task.tags !== undefined && task.tags.length > 0) {
       const startText = document.createElement("p");
       startText.innerText = "Tags: ";
       startText.setAttribute("class", "taskTag");
       tagsWrapper.appendChild(startText);
       task.tags.forEach((tag) => {
-        //task.tags is an array that contains strings with unicode values of emojis
         let newTag = document.createElement("p");
         newTag.setAttribute("class", "taskTag");
-        newTag.innerText = String.fromCodePoint(tag); //this is the function that makes the unicode into an emoji
+        newTag.innerText = String.fromCodePoint(tag);
         tagsWrapper.appendChild(newTag);
       });
     }
@@ -201,7 +273,7 @@ function renderList() {
 
     taskDeleteBtn.addEventListener("click", function () {
       li.remove();
-      deleteTask(task.id); //call delete function to remove task from toDo arrray
+      deleteTask(task.id);
     });
 
     const taskCompleteBtn = document.createElement("button");
@@ -218,6 +290,7 @@ function renderList() {
         p.classList.remove("complete");
       }
       sortList();
+      completeTask(task.id);
     });
     const taskEditBtn = document.createElement("button");
     taskEditBtn.setAttribute("class", "taskEditBtn");
@@ -247,9 +320,7 @@ function renderList() {
     toDoList.appendChild(li);
   });
 }
-//  Robin slut 
 
-//  Oscar börjar här 
 viewBtns.forEach((btn) => {
   btn.addEventListener("click", () => {
     if ((btn.checked = true)) {
@@ -315,4 +386,3 @@ function stopSearch() {
   renderList();
   cancelSearch.classList.add("hidden");
 }
-//  Oscar Slutar här 
