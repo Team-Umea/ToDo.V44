@@ -1,216 +1,3 @@
-/* * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: Arial, sans-serif;
-}
-
-body {
-  background-color: #f4f4f9;
-  color: #333;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  padding: 20px;
-  flex-direction: column;
-}
-
-header {
-  text-align: center;
-  margin-bottom: 20px;
-}
-header h1 {
-  font-size: 2.5rem;
-  color: #555;
-}
-
-section {
-  width: 100%;
-  max-width: 600px;
-  margin-bottom: 20px;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-}
-
-button {
-  background-color: #4caf50;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  margin-top: 10px;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-.taskDeleteBtn {
-  background-color: RED;
-}
-.taskEditBtn {
-  background-color: #d6ab2a;
-}
-.taskCompleteBtn:hover {
-  background-color: #45a049;
-}
-input[type="radio"]:checked + viewAll {
-  background-color: #00796b;
-}
-
-input[type="text"] {
-  width: 100%;
-  padding: 12px;
-  margin-top: 10px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-}
-
-.button-group {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-}
-
-.button-group label {
-  margin-right: 15px;
-  font-size: 1rem;
-  color: #555;
-  cursor: pointer;
-  white-space: nowrap;
-  padding: 5px 10px;
-  border-radius: 5px;
-  transition: background-color 0.3s, color 0.3s;
-}
-
-.viewBtn {
-  display: none;
-}
-
-input[type="radio"]:checked + label {
-  background-color: #00796b;
-  color: white;
-}
-
-input[type="checkbox"] {
-  margin-right: 8px;
-}
-
-#toDoListContainer {
-  margin-top: 20px;
-}
-#toDoList {
-  list-style-type: none;
-}
-
-.taskItem {
-  display: flex;
-  flex-direction: column;
-  background: #f8f9fa;
-  border: 1px solid #ddd;
-  padding: 15px;
-  margin-bottom: 10px;
-  border-radius: 5px;
-}
-
-.taskTitle {
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 5px;
-}
-
-.taskDesc {
-  font-size: 1rem;
-  color: #666;
-  margin-bottom: 10px;
-}
-
-.taskTagsWrapper {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  margin-top: 10px;
-}
-
-.taskTag {
-  background-color: #e0f7fa;
-  color: #00796b;
-  padding: 3px 8px;
-  border-radius: 12px;
-  font-size: 0.9rem;
-  margin-right: 5px;
-  width: min-content;
-  display: inline-block;
-}
-
-.button-group label {
-  margin-right: 15px;
-  font-size: 1rem;
-  color: #555;
-}
-
-.viewBtn {
-  display: none;
-}
-
-.complete {
-  color: green;
-  text-decoration: line-through;
-}
-
-.hidden {
-  display: none;
-}
-
-#submitMessage,
-#searchMessage {
-  font-size: 0.9rem;
-  color: red;
-  margin-top: 10px;
-}
-
-#tag1::before {
-  content: "\1f393";
-  font-size: 2rem;
-}
-#tag2::before {
-  content: "\1f9f9";
-  font-size: 2rem;
-}
-#tag3::before {
-  content: "\1f468";
-  font-size: 2rem;
-}
-
-.taskBtn {
-  appearance: none;
-  opacity: 50%;
-  transition: opacity 0.1s ease-in-out, transform 0.1s ease-in-out;
-}
-.taskBtn:hover {
-  transform: scale(1.05);
-}
-.taskBtn:checked {
-  opacity: 100%;
-}
-
-.hidden {
-  display: none;
-}
-
-.complete {
-  color: green;
-}
-
-@media (min-width: 768px) {
-  .button-group {
-    flex-direction: row;
-  }
-} */
-
 * {
   margin: 0;
   padding: 0;
@@ -248,7 +35,8 @@ body {
   padding: 0 1rem;
 }
 
-.authContainer form .emailHolder {
+.authContainer form .emailHolder,
+.formHeader {
   padding: 0.6rem;
   border-radius: 4px;
   text-align: center;
@@ -257,12 +45,25 @@ body {
   margin-bottom: 1rem;
 }
 
+.passwordWrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
 input {
   width: 100%;
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 4px;
   transition: border-color 0.3s;
+}
+
+.passwordInput {
+  border: none;
 }
 
 label {
@@ -311,6 +112,25 @@ input:focus {
 .submitMessage {
   margin-top: 10px;
   font-size: 0.8rem;
+}
+
+.orgUl {
+  list-style: none;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.orgUl li {
+  padding: 10px;
+  border-radius: 4px;
+  background-color: rgb(207, 204, 204);
+  transition: all 0.4s ease-in-out;
+}
+
+.orgUl li:hover {
+  background-color: rgb(226, 222, 222);
 }
 
 .m-1rem {

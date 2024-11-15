@@ -1,7 +1,5 @@
 const body = document.body;
 
-const email = getEmailFromLocalStorage;
-
 let form;
 let submitBtn;
 let submitMessage;
@@ -13,10 +11,28 @@ const IP = "http://localhost:3000/";
 const getVerCodeEndPoint = IP + "sendVerCode";
 const verifyEmailEndPoint = IP + "verifyEmail";
 const getUsersEndPoint = IP + "users";
+const signInEndPoint = IP + "signIn";
 
-function init() {
-  if (userExistsOnServer() === true) {
-    redirectToAnotherPage("signIn.html");
+async function init() {
+  const email = getEmailFromLocalStorage();
+  const password = getPasswordFromLocalStorage();
+
+  if (email && password) {
+    const attemptSignIn = await signIn(email, password);
+    if (attemptSignIn.valid === true) {
+      redirectToAnotherPage(attemptSignIn.path);
+    } else {
+      createEmailAuth();
+      formEvents();
+      inputEvents();
+    }
+  } else if (email) {
+    const valueOfExists = await userExistsOnServer();
+    if (valueOfExists) {
+      redirectToAnotherPage("signIn.html");
+    } else {
+      redirectToAnotherPage("signUp.html");
+    }
   } else {
     createEmailAuth();
     formEvents();
@@ -48,6 +64,7 @@ function createEmailAuth() {
   codeInput.setAttribute("id", codeID);
   codeInput.setAttribute("placeholder", "Ange verifieringskoden som skickats till din mejl");
   codeInput.setAttribute("class", "hidden");
+  codeInput.setAttribute("type", "number");
 
   codeLabel.setAttribute("for", codeID);
 
@@ -183,11 +200,9 @@ async function verifyEmail(email, code) {
     if (response.ok) {
       const status = await response.json();
       if (status.ok) {
+        saveEmailToLocalStorage(email);
         redirectToAnotherPage(status.path);
       }
-      // else {
-      //   setSubmitMessage("Koden stämmer inte");
-      // }
     }
   } catch (error) {
     console.log("Error", error);
@@ -196,10 +211,9 @@ async function verifyEmail(email, code) {
 
 async function userExistsOnServer() {
   const emailToTest = getEmailFromLocalStorage();
-
   if (emailToTest !== null) {
     const users = await getUsers();
-    if (Array.from(users).includes(emailToTest)) {
+    if (users.includes(emailToTest)) {
       return true;
     }
   }
@@ -209,10 +223,34 @@ async function userExistsOnServer() {
 async function getUsers() {
   try {
     const res = await fetch(getUsersEndPoint);
-    return (users = await res.json());
+    const temp = await res.json();
+    console.log("Temp: ", temp);
+    return temp;
   } catch (error) {
     console.log("There was a problem fetching users");
   }
+}
+
+async function signIn(email, password) {
+  try {
+    const response = await fetch(signInEndPoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email: email, password: password }),
+    });
+    if (response.ok) {
+      const status = await response.json();
+      if (status.ok) {
+        return { valid: true, path: status.path };
+      }
+    }
+    return { valid: false, path: undefined };
+  } catch (error) {
+    console.log("Error", error);
+  }
+  return { valid: false, path: undefined };
 }
 
 function removeWhiteSpace(str) {
@@ -224,12 +262,15 @@ function redirectToAnotherPage(path) {
 }
 
 function saveEmailToLocalStorage(email) {
-  clearLocalStorage();
-  localStorage.setItem("email", JSON.stringify({ key: email }));
+  localStorage.setItem("chutodoemail", JSON.stringify({ key: email }));
+}
+
+function savePasswordToLocalStorage(password) {
+  localStorage.setItem("chutodopassword", JSON.stringify({ key: password }));
 }
 
 function getEmailFromLocalStorage() {
-  const emailData = localStorage.getItem("email");
+  const emailData = localStorage.getItem("chutodoemail");
   if (emailData) {
     const parsedData = JSON.parse(emailData);
     return parsedData.key;
@@ -238,8 +279,12 @@ function getEmailFromLocalStorage() {
   }
 }
 
-function clearLocalStorage() {
-  if (typeof Storage !== "undefined") {
-    localStorage.clear();
+function getPasswordFromLocalStorage() {
+  const passwordData = localStorage.getItem("chutodopassword");
+  if (passwordData) {
+    const parsedData = JSON.parse(passwordData);
+    return parsedData.key;
+  } else {
+    return null;
   }
 }
