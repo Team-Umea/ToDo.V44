@@ -12,7 +12,7 @@ body {
   justify-content: center;
   gap: 2rem;
   align-items: center;
-  height: 100vh;
+  min-height: 100dvh;
   margin: 0;
 }
 
@@ -49,6 +49,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: nowrap;
   padding: 0 5px;
   border: 1px solid #ccc;
   border-radius: 4px;
@@ -82,11 +83,44 @@ input:focus {
   color: rgb(22, 22, 22);
   border: none;
   padding: 10px;
+  white-space: nowrap;
   margin-bottom: 10px;
   border-radius: 4px;
   cursor: pointer;
   width: 100%;
   transition: background-color 0.3s;
+}
+
+.btnGreen {
+  background-color: rgb(64, 168, 64);
+}
+
+.btnGreen:hover {
+  background-color: rgb(80, 207, 80);
+}
+
+.btnYellow {
+  background-color: rgb(126, 138, 20);
+}
+
+.btnYellow:hover {
+  background-color: rgb(174, 190, 26);
+}
+
+.btnRed {
+  background-color: rgb(165, 67, 11);
+}
+
+.btnRed:hover {
+  background-color: rgb(187, 76, 12);
+}
+
+.btnGrey {
+  background-color: rgb(90, 89, 88);
+}
+
+.btnGrey:hover {
+  background-color: rgb(117, 117, 116);
 }
 
 .cancelBtn {
@@ -114,12 +148,68 @@ input:focus {
   font-size: 0.8rem;
 }
 
-.orgUl {
+.orgsHeader {
+  text-align: center;
+}
+
+.usersOrgsContainer {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+.usersOrgsUl {
+  list-style: none;
+  display: flex;
+  width: 100%;
+}
+
+.usersOrgsUl li {
+  padding: 10px;
+  display: flex;
+  width: 100%;
+  flex: 0 0 100%;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  background-color: rgb(221, 213, 213);
+}
+
+.orgsUlBtnContainer {
+  max-width: 86%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+  align-items: flex-end;
+}
+
+.orgsUlBtnContainer button {
+  color: #e6e8eb;
+  margin: 0;
+  width: fit-content;
+}
+
+.orgsUlPassContainer {
+  width: 100%;
+  max-width: 80%;
+  background-color: #e9e3e3;
+}
+
+.orgsUlPassContainer div input {
+  background-color: transparent;
+}
+
+.usersOrgsUl li form div .orgUl {
   list-style: none;
   padding: 1rem;
   display: flex;
   flex-direction: column;
   gap: 5px;
+}
+
+.orgUl {
+  margin-bottom: 1rem;
 }
 
 .orgUl li {
@@ -131,6 +221,31 @@ input:focus {
 
 .orgUl li:hover {
   background-color: rgb(226, 222, 222);
+}
+
+.carousel-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: transparent;
+  border: none;
+  font-size: 2rem;
+  padding: 10px;
+  cursor: pointer;
+  z-index: 10;
+  color: black;
+}
+
+.carousel-button.left {
+  left: 10px;
+}
+
+.carousel-button.right {
+  right: 10px;
+}
+
+.carousel-button:focus {
+  outline: none;
 }
 
 .m-1rem {

@@ -14,7 +14,18 @@ let buttons = [];
 let wrappers = [];
 let uls = [];
 
+// const IP = "https://todobackend-vuxr.onrender.com/";
+const IP = "http://localhost:3000/";
+const getOrgsEndPoint = IP + "getAllOrgs";
+const getUsersOrgsEndPoint = IP + "usersOrgs";
+const joinOrgEndPoint = IP + "joinOrg";
+const leaveOrgEndPoint = IP + "leaveOrg";
+const createOrganizationEndPoint = IP + "createOrg";
+const deleteOrgEndPoint = IP + "deleteOrg";
+const changeOrgPasswordEndPoint = IP + "changeOrgPassword";
+
 function init() {
+  createUsersOrgs();
   createJoinOrgForm();
   createNewOrgForm();
   inputEvents();
@@ -23,14 +34,6 @@ function init() {
 }
 
 init();
-
-// const IP = "https://todobackend-vuxr.onrender.com/";
-const IP = "http://localhost:3000/";
-const getOrgsEndPoint = IP + "getAllOrgs";
-const joinOrgEndPoint = IP + "joinOrg";
-const createOrganizationEndPoint = IP + "createOrg";
-// const getPasswordChangeCodeEndPoint = IP + "sendPasswordChangeCode";
-// const changePasswordEndPoint = IP + "changePassword";
 
 function createJoinOrgForm() {
   const container = document.createElement("div");
@@ -141,6 +144,7 @@ function createInputPasswordToggle(parent, id, placeholder, hidden, addLabel) {
   input.setAttribute("type", "password");
 
   label.setAttribute("for", id);
+  label.setAttribute("id", `${id}Label`);
 
   toggle.innerHTML = "&#128065";
   toggle.addEventListener("click", (e) => {
@@ -200,6 +204,232 @@ async function searchOrganizations(parent, searchQuery) {
   }
 }
 
+async function createUsersOrgs() {
+  const orgs = await getUsersOrgs();
+
+  if (orgs.length > 0) {
+    const orgsHeader = document.createElement("h2");
+    const orgsContainer = document.createElement("div");
+    const orgsUl = document.createElement("ul");
+
+    orgsHeader.innerText = "Your organizations";
+    orgsHeader.setAttribute("class", "orgsHeader");
+
+    orgsContainer.setAttribute("class", "usersOrgsContainer");
+    orgsUl.setAttribute("class", "usersOrgsUl");
+    orgs.reverse().forEach((org) => {
+      const orgLi = document.createElement("li");
+      const orgName = document.createElement("h3");
+
+      const btnContainer = document.createElement("div");
+      const selectBtn = document.createElement("button");
+      const leaveBtn = document.createElement("button");
+      const deleteBtn = document.createElement("button");
+      const resetOrgPasswordBtn = document.createElement("button");
+
+      btnContainer.setAttribute("class", "orgsUlBtnContainer");
+
+      orgName.innerText = org.name;
+
+      selectBtn.innerText = "Select";
+      selectBtn.setAttribute("class", "btn btnGreen");
+      usersOrgsButtonEvent(0, selectBtn, false, org.name);
+
+      leaveBtn.innerText = "Leave";
+      leaveBtn.setAttribute("class", "btn btnYellow");
+      usersOrgsButtonEvent(1, leaveBtn, deleteBtn, true, org.name);
+
+      deleteBtn.innerText = "Delete";
+      org.isAdmin ? deleteBtn.setAttribute("class", "btn btnRed") : deleteBtn.setAttribute("class", "btn btnRed hidden");
+      usersOrgsButtonEvent(2, deleteBtn, leaveBtn, true, org.name);
+
+      resetOrgPasswordBtn.innerText = "Reset Password";
+      org.isAdmin ? resetOrgPasswordBtn.setAttribute("class", "btn btnGrey") : resetOrgPasswordBtn.setAttribute("class", "btn btnGrey hidden");
+      usersOrgsButtonEvent(3, resetOrgPasswordBtn, false, org.name);
+      resetOrgPasswordBtn.addEventListener("click", () => {
+        orgLi.lastElementChild.classList.remove("hidden");
+      });
+
+      btnContainer.appendChild(selectBtn);
+      btnContainer.appendChild(leaveBtn);
+      btnContainer.appendChild(deleteBtn);
+      btnContainer.appendChild(resetOrgPasswordBtn);
+
+      orgLi.appendChild(orgName);
+      orgLi.appendChild(btnContainer);
+      createResetOrgPasswordForm(orgLi, org.name);
+      orgsUl.appendChild(orgLi);
+    });
+
+    const leftBtn = document.createElement("button");
+    const rightBtn = document.createElement("button");
+
+    leftBtn.setAttribute("class", "carousel-button left");
+    leftBtn.innerHTML = "&#10094;";
+
+    rightBtn.setAttribute("class", "carousel-button right");
+    rightBtn.innerHTML = "&#10095;";
+
+    orgsContainer.appendChild(orgsUl);
+    orgsContainer.appendChild(leftBtn);
+    orgsContainer.appendChild(rightBtn);
+
+    body.insertBefore(orgsHeader, body.children[2]);
+    body.insertBefore(orgsContainer, body.children[3]);
+
+    initOrgsCarousel(orgsUl, orgsUl.children, leftBtn, rightBtn);
+  }
+}
+
+function initOrgsCarousel(carousel, items, nextButton, prevButton) {
+  let currentIndex = items.length - 1;
+  let visibleImagesCount = 1;
+
+  function updateCarousel() {
+    const width = items[0].clientWidth;
+    carousel.style.transform = `translateX(${-currentIndex * width}px)`;
+  }
+
+  function updateVisibleImagesCount() {
+    const screenWidth = window.innerWidth;
+    if (screenWidth >= 1024) {
+      visibleImagesCount = 4;
+    } else if (screenWidth >= 768) {
+      visibleImagesCount = 2;
+    } else {
+      visibleImagesCount = 1;
+    }
+    updateCarousel();
+  }
+
+  nextButton.addEventListener("click", () => {
+    if (currentIndex < items.length - visibleImagesCount) {
+      currentIndex += 1;
+    }
+    updateCarousel();
+  });
+
+  prevButton.addEventListener("click", () => {
+    if (currentIndex > 0) {
+      currentIndex -= 1;
+    }
+    updateCarousel();
+  });
+
+  window.addEventListener("resize", updateVisibleImagesCount);
+
+  updateVisibleImagesCount();
+}
+
+function usersOrgsButtonEvent(index, btn, linkedBtn, confirm, orgName) {
+  btn.addEventListener("click", () => {
+    const btnText = btn.innerText;
+    switch (index) {
+      case 0:
+        saveOrgToLocalStorage(btnText);
+        redirectToAnotherPage("projects.html");
+        break;
+      case 1:
+        if (confirm) {
+          if (btnText === "Leave") {
+            btn.innerText = "Confirm";
+            linkedBtn.innerText = "Delete";
+          } else if (btnText === "Confirm") {
+            leaveOrganization(orgName);
+            btn.innerText = "Leave";
+          }
+        }
+        break;
+      case 2:
+        if (confirm) {
+          if (btnText === "Delete") {
+            btn.innerText = "Confirm";
+            linkedBtn.innerText = "Leave";
+          } else if (btnText === "Confirm") {
+            deleteOrganization(orgName);
+            btn.innerText = "Delete";
+          }
+        }
+        break;
+      case 3:
+        break;
+    }
+  });
+}
+
+function createResetOrgPasswordForm(parent, orgName) {
+  const container = document.createElement("div");
+  const resetForm = document.createElement("form");
+  const cancelBtn = document.createElement("button");
+  const btn = document.createElement("button");
+  const formMessage = document.createElement("p");
+
+  container.setAttribute("class", "authContainer orgsUlPassContainer hidden");
+
+  btn.innerText = "Reset Password";
+  btn.setAttribute("type", "submit");
+  btn.setAttribute("class", "submitBtn");
+
+  cancelBtn.innerText = "Cancel";
+  cancelBtn.setAttribute("type", "button");
+  cancelBtn.setAttribute("class", "btn cancelBtn");
+
+  formMessage.setAttribute("class", "submitMessage");
+
+  const passwordID = `${orgName}orgPassword`;
+  const confirmPasswordID = `${orgName}orgConfirmPassword`;
+
+  createInputPasswordToggle(resetForm, passwordID, "Chose a password", false, true);
+  createInputPasswordToggle(resetForm, confirmPasswordID, "Confirm password", false, true);
+
+  const passwordInput = resetForm.querySelector(`#${passwordID}`);
+  const confirmPasswordInput = resetForm.querySelector(`#${confirmPasswordID}`);
+
+  const passwordLabel = resetForm.querySelector(`#${passwordID}Label`);
+  const confirmPasswordLabel = resetForm.querySelector(`#${confirmPasswordID}Label`);
+
+  cancelBtn.addEventListener("click", () => {
+    passwordInput.value = "";
+    confirmPasswordInput.value = "";
+    passwordLabel.innerText = "";
+    confirmPasswordLabel, (innerText = "");
+    container.classList.add("hidden");
+  });
+
+  passwordInput.addEventListener("input", () => {
+    formMessage.innerText = "";
+    passwordInput.value = removeWhiteSpace(passwordInput.value);
+    const orgPassword = passwordInput.value;
+    checkPasswordLength(orgPassword, passwordLabel);
+  });
+
+  confirmPasswordInput.addEventListener("input", () => {
+    formMessage.innerText = "";
+    confirmPasswordInput.value = removeWhiteSpace(confirmPasswordInput.value);
+    const orgPassword = passwordInput.value;
+    const orgConfirmPassword = confirmPasswordInput.value;
+    checkPasswordMatch(orgPassword, orgConfirmPassword, confirmPasswordLabel);
+  });
+
+  resetForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const orgPassword = passwordInput.value;
+    const orgConfirmPassword = confirmPasswordInput.value;
+    if (orgPassword.length > 7 && orgPassword === orgConfirmPassword) {
+      changeOrganizationPassword(orgName, orgPassword, orgConfirmPassword);
+    } else {
+      formMessage.innerText = "Passwords must match and be atleast 8 characters";
+    }
+  });
+
+  resetForm.appendChild(cancelBtn);
+  resetForm.appendChild(btn);
+  container.appendChild(resetForm);
+  container.appendChild(formMessage);
+
+  parent.appendChild(container);
+}
+
 function toggleJoinForm(btn, enterPassword) {
   const searchInput = inputs[0];
   const passwordInput = inputs[1];
@@ -247,6 +477,7 @@ function formEvent() {
           const confirmPassword = inputs[4].value;
 
           if (password.length > 7 && password === confirmPassword) {
+            clearInputs();
             createOrganization(name, password, confirmPassword);
             resetLables();
           } else {
@@ -339,6 +570,10 @@ function noWhiteSpaceInput() {
   });
 }
 
+function clearInputs() {
+  inputs.forEach((input) => (input.value = ""));
+}
+
 function getEmailFromLocalStorage() {
   const emailData = localStorage.getItem("chutodoemail");
   if (emailData) {
@@ -359,17 +594,47 @@ function getPasswordFromLocalStorage() {
   }
 }
 
+function saveOrgToLocalStorage(name) {
+  localStorage.setItem("chutodoorg", JSON.stringify({ key: name }));
+}
+
+function removeFromLocalStorage(key) {
+  if (localStorage.getItem(key) !== null) {
+    localStorage.removeItem(key);
+  }
+}
+
 function redirectToAnotherPage(path) {
   window.location.href = path;
 }
 
-function saveOrgToLocalStorage(name) {
-  localStorage.setItem("chutodoorg", JSON.stringify({ key: name }));
+function reloadPage() {
+  location.reload();
 }
 
 async function getOrgs() {
   try {
     const response = await fetch(getOrgsEndPoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email: email, password: password }),
+    });
+    if (response.ok) {
+      const status = await response.json();
+      if (status.ok) {
+        return status.orgs;
+      }
+    }
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+async function getUsersOrgs() {
+  try {
+    const response = await fetch(getUsersOrgsEndPoint, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -421,6 +686,71 @@ async function createOrganization(name, orgPassword, confirmPassword) {
       const status = await response.json();
       if (status.ok) {
         saveOrgToLocalStorage(name);
+        redirectToAnotherPage(status.path);
+      }
+    }
+  } catch (error) {
+    console.error("Error: ", error);
+  }
+}
+
+async function leaveOrganization(name) {
+  try {
+    const response = await fetch(leaveOrgEndPoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email: email, password: password, orgName: name }),
+    });
+    if (response.ok) {
+      const status = await response.json();
+      if (status.ok) {
+        const key = `chutodoorg${name}`;
+        reloadPage();
+        removeFromLocalStorage(key);
+      }
+    }
+  } catch (error) {
+    console.error("Error: ", error);
+  }
+}
+
+async function deleteOrganization(name) {
+  try {
+    const response = await fetch(deleteOrgEndPoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email: email, password: password, orgName: name }),
+    });
+    if (response.ok) {
+      const status = await response.json();
+      if (status.ok) {
+        const key = `chutodoorg${name}`;
+        reloadPage();
+        removeFromLocalStorage(key);
+      }
+    }
+  } catch (error) {
+    console.error("Error: ", error);
+  }
+}
+
+async function changeOrganizationPassword(name, orgPassword, confirmOrgPassword) {
+  try {
+    const response = await fetch(changeOrgPasswordEndPoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email: email, password: password, orgName: name, orgPassword: orgPassword, confirmOrgPassword: confirmOrgPassword }),
+    });
+    if (response.ok) {
+      const status = await response.json();
+      if (status.ok) {
+        reloadPage();
         redirectToAnotherPage(status.path);
       }
     }
