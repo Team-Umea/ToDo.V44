@@ -71,7 +71,6 @@ function createJoinOrgForm() {
   formMessage.setAttribute("class", "submitMessage");
 
   submitMessages.push(formMessage);
-  form = orgForm;
 
   inputs.push(orgName);
   uls.push(organizations);
@@ -282,24 +281,12 @@ async function createUsersOrgs() {
 }
 
 function initOrgsCarousel(carousel, items, nextButton, prevButton) {
-  let currentIndex = items.length - 1;
+  let currentIndex = 0;
   let visibleImagesCount = 1;
 
   function updateCarousel() {
     const width = items[0].clientWidth;
     carousel.style.transform = `translateX(${-currentIndex * width}px)`;
-  }
-
-  function updateVisibleImagesCount() {
-    const screenWidth = window.innerWidth;
-    if (screenWidth >= 1024) {
-      visibleImagesCount = 4;
-    } else if (screenWidth >= 768) {
-      visibleImagesCount = 2;
-    } else {
-      visibleImagesCount = 1;
-    }
-    updateCarousel();
   }
 
   nextButton.addEventListener("click", () => {
@@ -315,10 +302,6 @@ function initOrgsCarousel(carousel, items, nextButton, prevButton) {
     }
     updateCarousel();
   });
-
-  window.addEventListener("resize", updateVisibleImagesCount);
-
-  updateVisibleImagesCount();
 }
 
 function usersOrgsButtonEvent(index, btn, linkedBtn, confirm, orgName) {
@@ -750,7 +733,7 @@ async function changeOrganizationPassword(name, orgPassword, confirmOrgPassword)
     if (response.ok) {
       const status = await response.json();
       if (status.ok) {
-        reloadPage();
+        saveOrgToLocalStorage(name);
         redirectToAnotherPage(status.path);
       }
     }
