@@ -16,7 +16,9 @@ const cancelSearch = document.getElementById("cancelSearch");
 
 let toDo = [];
 let orgTodo = [];
-const IP = "https://todobackend-vuxr.onrender.com/";
+let project = getProFromLocalStorage();
+// const IP = "https://todobackend-vuxr.onrender.com/";
+const IP = "http://localhost:3000/";
 const getEndPoint = IP + "tasks";
 const addEndPoint = IP + "addTask";
 const deleteEndPoint = IP + "deleteTask";
@@ -25,7 +27,8 @@ const completeEndPoint = IP + "completeTask";
 
 async function load() {
   toDo = await getTasks();
-  console.log("toDo", toDo);
+  console.log("Project: ", project);
+  console.log("Todos: ", toDo);
   orgTodo = toDo;
   renderList();
 }
@@ -385,4 +388,14 @@ function stopSearch() {
   sortList();
   renderList();
   cancelSearch.classList.add("hidden");
+}
+
+function getProFromLocalStorage() {
+  const orgData = localStorage.getItem("chutodopro");
+  if (orgData) {
+    const parsedData = JSON.parse(orgData);
+    return parsedData.key;
+  } else {
+    return null;
+  }
 }

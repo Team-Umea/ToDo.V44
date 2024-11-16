@@ -1,8 +1,9 @@
 const body = document.body;
 
 const email = getEmailFromLocalStorage();
+const password = getPasswordFromLocalStorage();
 const organization = getOrgFromLocalStorage();
-let passChangeCode;
+// let passChangeCode;
 
 let form;
 let submitMessage;
@@ -10,20 +11,19 @@ let submitMessage;
 let inputs = [];
 let labels = [];
 
+// const IP = "https://todobackend-vuxr.onrender.com/";
+const IP = "http://localhost:3000/";
+const createProjectEndPoint = IP + "createProject";
+const getOrgsProjectsEndPoint = IP + "getOrgsProjects";
+
 function init() {
   createSignInAuth();
+  createUlFromProjects();
   formEvent();
   noWhiteSpaceInput();
 }
 
 init();
-
-// const IP = "https://todobackend-vuxr.onrender.com/";
-const IP = "http://localhost:3000/";
-const createProjectEndPoint = IP + "createProject";
-// const getUsersEndPoint = IP + "users";
-// const getPasswordChangeCodeEndPoint = IP + "sendPasswordChangeCode";
-// const changePasswordEndPoint = IP + "changePassword";
 
 function createSignInAuth() {
   const container = document.createElement("div");
@@ -53,13 +53,35 @@ function createSignInAuth() {
 
   projectForm.appendChild(header);
   projectForm.appendChild(proName);
-  //   createInputPasswordToggle(projectForm, "password", "Chose a password", false);
-  //   createInputPasswordToggle(projectForm, "confirmPassword", "Confirm password", false);
   projectForm.appendChild(btn);
   container.appendChild(projectForm);
   container.appendChild(proMessage);
 
   body.appendChild(container);
+}
+
+async function createUlFromProjects() {
+  const projects = await getOrgsProjects();
+
+  if (projects.length) {
+    const container = document.createElement("ul");
+    container.setAttribute("class", "projectsUl");
+    projects.forEach((pro) => {
+      const li = document.createElement("li");
+      const proName = document.createElement("p");
+
+      li.addEventListener("click", () => {
+        saveProToLocalStorage(pro);
+        redirectToAnotherPage("todo.html");
+      });
+
+      proName.innerText = pro;
+
+      li.appendChild(proName);
+      container.appendChild(li);
+    });
+    body.appendChild(container);
+  }
 }
 
 function createInputPasswordToggle(parent, id, placeholder, hidden) {
@@ -109,8 +131,12 @@ function formEvent() {
     const name = inputs[0].value;
 
     if (name) {
-      createProject(name);
+      clearInputs();
       resetLables();
+      saveProToLocalStorage(name);
+      setTimeout(() => {
+        createProject(name);
+      }, 200);
     } else {
       setSubmitMessage("Enter a project name");
     }
@@ -153,10 +179,24 @@ function noWhiteSpaceInput() {
   });
 }
 
+function clearInputs() {
+  inputs.forEach((input) => (input.value = ""));
+}
+
 function getEmailFromLocalStorage() {
   const emailData = localStorage.getItem("chutodoemail");
   if (emailData) {
     const parsedData = JSON.parse(emailData);
+    return parsedData.key;
+  } else {
+    return null;
+  }
+}
+
+function getPasswordFromLocalStorage() {
+  const passwordData = localStorage.getItem("chutodopassword");
+  if (passwordData) {
+    const parsedData = JSON.parse(passwordData);
     return parsedData.key;
   } else {
     return null;
@@ -177,6 +217,10 @@ function redirectToAnotherPage(path) {
   window.location.href = path;
 }
 
+function saveProToLocalStorage(name) {
+  localStorage.setItem("chutodopro", JSON.stringify({ key: name }));
+}
+
 async function createProject(name) {
   try {
     const respone = await fetch(createProjectEndPoint, {
@@ -184,12 +228,32 @@ async function createProject(name) {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ name: name, email: email, org: organization }),
+      body: JSON.stringify({ email: email, password: password, name: name, org: organization }),
     });
     if (respone.ok) {
       const status = await respone.json();
       if (status.ok) {
         redirectToAnotherPage(status.path);
+      }
+    }
+  } catch (error) {
+    console.error("Error: ", error);
+  }
+}
+
+async function getOrgsProjects() {
+  try {
+    const respone = await fetch(getOrgsProjectsEndPoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email: email, password: password, org: organization }),
+    });
+    if (respone.ok) {
+      const status = await respone.json();
+      if (status.ok) {
+        return status.projects;
       }
     }
   } catch (error) {
