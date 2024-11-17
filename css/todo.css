@@ -98,6 +98,19 @@ input[type="checkbox"] {
   margin-right: 8px;
 }
 
+.search {
+  background-color: red;
+}
+
+#search div {
+  display: flex;
+  gap: 20px;
+}
+
+#search div button {
+  white-space: nowrap;
+}
+
 #toDoListContainer {
   margin-top: 20px;
 }
