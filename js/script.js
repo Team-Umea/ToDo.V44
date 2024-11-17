@@ -12,19 +12,31 @@ const getVerCodeEndPoint = IP + "sendVerCode";
 const verifyEmailEndPoint = IP + "verifyEmail";
 const getUsersEndPoint = IP + "users";
 const signInEndPoint = IP + "signIn";
+const getOrgsProjectsEndPoint = IP + "getOrgsProjects";
+const getTasksEndPoint = IP + "tasks";
 
 async function init() {
   const email = getEmailFromLocalStorage();
   const password = getPasswordFromLocalStorage();
   const organization = getOrgFromLocalStorage();
+  const organizationPassword = getOrgPasswordFromLocalStorage();
   const project = getProFromLocalStorage();
 
   if (email && password) {
-    if (organization) {
-      if (project) {
-        redirectToAnotherPage("todo.html");
-      } else {
+    if (organization && organizationPassword) {
+      const isAllowedToLoadOrgsProjects = await getOrgsProjects(email, password, organization, organizationPassword);
+
+      if (project && isAllowedToLoadOrgsProjects) {
+        const isAllowedToLoadProject = await getTasksFromServer(email, password, organization, organizationPassword, project);
+        if (isAllowedToLoadProject) {
+          redirectToAnotherPage("todo.html");
+        } else {
+          redirectToAnotherPage("projects.html");
+        }
+      } else if (isAllowedToLoadOrgsProjects) {
         redirectToAnotherPage("projects.html");
+      } else {
+        redirectToAnotherPage("organizations.html");
       }
     } else {
       const attemptSignIn = await signIn(email, password);
@@ -184,6 +196,72 @@ function noWhiteSpaceInput() {
   });
 }
 
+function removeWhiteSpace(str) {
+  return str.replace(/\s+/g, "");
+}
+
+function redirectToAnotherPage(path) {
+  window.location.href = path;
+}
+
+function saveEmailToLocalStorage(email) {
+  localStorage.setItem("chutodoemail", JSON.stringify({ key: email }));
+}
+
+function savePasswordToLocalStorage(password) {
+  localStorage.setItem("chutodopassword", JSON.stringify({ key: password }));
+}
+
+function getEmailFromLocalStorage() {
+  const emailData = localStorage.getItem("chutodoemail");
+  if (emailData) {
+    const parsedData = JSON.parse(emailData);
+    return parsedData.key;
+  } else {
+    return null;
+  }
+}
+
+function getPasswordFromLocalStorage() {
+  const passwordData = localStorage.getItem("chutodopassword");
+  if (passwordData) {
+    const parsedData = JSON.parse(passwordData);
+    return parsedData.key;
+  } else {
+    return null;
+  }
+}
+
+function getOrgFromLocalStorage() {
+  const orgData = localStorage.getItem("chutodoorg");
+  if (orgData) {
+    const parsedData = JSON.parse(orgData);
+    return parsedData.key;
+  } else {
+    return null;
+  }
+}
+
+function getOrgPasswordFromLocalStorage() {
+  const passwordData = localStorage.getItem("chutodoorgpassword");
+  if (passwordData) {
+    const parsedData = JSON.parse(passwordData);
+    return parsedData.key;
+  } else {
+    return null;
+  }
+}
+
+function getProFromLocalStorage() {
+  const orgData = localStorage.getItem("chutodopro");
+  if (orgData) {
+    const parsedData = JSON.parse(orgData);
+    return parsedData.key;
+  } else {
+    return null;
+  }
+}
+
 async function getVerCode(email) {
   try {
     fetch(getVerCodeEndPoint, {
@@ -263,58 +341,42 @@ async function signIn(email, password) {
   return { valid: false, path: undefined };
 }
 
-function removeWhiteSpace(str) {
-  return str.replace(/\s+/g, "");
-}
-
-function redirectToAnotherPage(path) {
-  window.location.href = path;
-}
-
-function saveEmailToLocalStorage(email) {
-  localStorage.setItem("chutodoemail", JSON.stringify({ key: email }));
-}
-
-function savePasswordToLocalStorage(password) {
-  localStorage.setItem("chutodopassword", JSON.stringify({ key: password }));
-}
-
-function getEmailFromLocalStorage() {
-  const emailData = localStorage.getItem("chutodoemail");
-  if (emailData) {
-    const parsedData = JSON.parse(emailData);
-    return parsedData.key;
-  } else {
-    return null;
+async function getOrgsProjects(email, password, orgName, orgPassword) {
+  try {
+    const respone = await fetch(getOrgsProjectsEndPoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email: email, password: password, orgName: orgName, orgPassword: orgPassword }),
+    });
+    if (respone.ok) {
+      const status = await respone.json();
+      if (status.ok) {
+        return true;
+      }
+    }
+  } catch (error) {
+    console.error("Error: ", error);
   }
 }
 
-function getPasswordFromLocalStorage() {
-  const passwordData = localStorage.getItem("chutodopassword");
-  if (passwordData) {
-    const parsedData = JSON.parse(passwordData);
-    return parsedData.key;
-  } else {
-    return null;
-  }
-}
-
-function getOrgFromLocalStorage() {
-  const orgData = localStorage.getItem("chutodoorg");
-  if (orgData) {
-    const parsedData = JSON.parse(orgData);
-    return parsedData.key;
-  } else {
-    return null;
-  }
-}
-
-function getProFromLocalStorage() {
-  const orgData = localStorage.getItem("chutodopro");
-  if (orgData) {
-    const parsedData = JSON.parse(orgData);
-    return parsedData.key;
-  } else {
-    return null;
+async function getTasksFromServer(email, password, orgName, orgPassword, project) {
+  try {
+    const respone = await fetch(getTasksEndPoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email: email, password: password, orgName: orgName, orgPassword, proName: project }),
+    });
+    if (respone.ok) {
+      const status = await respone.json();
+      if (status.ok) {
+        return true;
+      }
+    }
+  } catch (error) {
+    console.error("Error: ", error);
   }
 }

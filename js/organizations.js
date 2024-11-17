@@ -231,15 +231,15 @@ async function createUsersOrgs() {
 
       selectBtn.innerText = "Select";
       selectBtn.setAttribute("class", "btn btnGreen");
-      usersOrgsButtonEvent(0, selectBtn, undefined, false, org.name);
+      usersOrgsButtonEvent(0, selectBtn, undefined, false, [org.name, org.password]);
 
       leaveBtn.innerText = "Leave";
       leaveBtn.setAttribute("class", "btn btnYellow");
-      usersOrgsButtonEvent(1, leaveBtn, deleteBtn, true, org.name);
+      usersOrgsButtonEvent(1, leaveBtn, deleteBtn, true, [org.name]);
 
       deleteBtn.innerText = "Delete";
       org.isAdmin ? deleteBtn.setAttribute("class", "btn btnRed") : deleteBtn.setAttribute("class", "btn btnRed hidden");
-      usersOrgsButtonEvent(2, deleteBtn, leaveBtn, true, org.name);
+      usersOrgsButtonEvent(2, deleteBtn, leaveBtn, true, [org.name]);
 
       resetOrgPasswordBtn.innerText = "Reset Password";
       org.isAdmin ? resetOrgPasswordBtn.setAttribute("class", "btn btnGrey") : resetOrgPasswordBtn.setAttribute("class", "btn btnGrey hidden");
@@ -304,12 +304,13 @@ function initOrgsCarousel(carousel, items, nextButton, prevButton) {
   });
 }
 
-function usersOrgsButtonEvent(index, btn, linkedBtn, confirm, orgName) {
+function usersOrgsButtonEvent(index, btn, linkedBtn, confirm, orgInfo) {
   btn.addEventListener("click", () => {
     const btnText = btn.innerText;
     switch (index) {
       case 0:
-        saveOrgToLocalStorage(orgName);
+        saveOrgToLocalStorage(orgInfo[0]);
+        saveOrgPasswordToLocalStorage(orgInfo[1]);
         setTimeout(() => {
           redirectToAnotherPage("projects.html");
         }, 100);
@@ -320,7 +321,7 @@ function usersOrgsButtonEvent(index, btn, linkedBtn, confirm, orgName) {
             btn.innerText = "Confirm";
             linkedBtn.innerText = "Delete";
           } else if (btnText === "Confirm") {
-            leaveOrganization(orgName);
+            leaveOrganization(orgInfo[0]);
             btn.innerText = "Leave";
           }
         }
@@ -331,7 +332,7 @@ function usersOrgsButtonEvent(index, btn, linkedBtn, confirm, orgName) {
             btn.innerText = "Confirm";
             linkedBtn.innerText = "Leave";
           } else if (btnText === "Confirm") {
-            deleteOrganization(orgName);
+            deleteOrganization(orgInfo[0]);
             btn.innerText = "Delete";
           }
         }
@@ -584,6 +585,10 @@ function saveOrgToLocalStorage(name) {
   localStorage.setItem("chutodoorg", JSON.stringify({ key: name }));
 }
 
+function saveOrgPasswordToLocalStorage(pass) {
+  localStorage.setItem("chutodoorgpassword", JSON.stringify({ key: pass }));
+}
+
 function removeFromLocalStorage(key) {
   if (localStorage.getItem(key) !== null) {
     localStorage.removeItem(key);
@@ -650,7 +655,8 @@ async function joinOrganization(orgName, orgPassword) {
     if (response.ok) {
       const status = await response.json();
       if (status.ok) {
-        saveOrgToLocalStorage(selectedOrganization);
+        saveOrgToLocalStorage(status.password);
+        saveOrgPasswordToLocalStorage(orgPassword);
         setTimeout(() => {
           redirectToAnotherPage(status.path);
         }, 100);
@@ -674,6 +680,7 @@ async function createOrganization(name, orgPassword, confirmPassword) {
       const status = await response.json();
       if (status.ok) {
         saveOrgToLocalStorage(name);
+        saveOrgPasswordToLocalStorage(status.password);
         setTimeout(() => {
           redirectToAnotherPage(status.path);
         }, 100);

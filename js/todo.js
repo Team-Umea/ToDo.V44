@@ -16,6 +16,7 @@ let toDo = [];
 const email = getEmailFromLocalStorage();
 const password = getPasswordFromLocalStorage();
 const organization = getOrgFromLocalStorage();
+const organizationPassword = getOrgPasswordFromLocalStorage();
 const project = getProFromLocalStorage();
 
 // const IP = "https://todobackend-vuxr.onrender.com/";
@@ -385,6 +386,16 @@ function getOrgFromLocalStorage() {
   }
 }
 
+function getOrgPasswordFromLocalStorage() {
+  const passwordData = localStorage.getItem("chutodoorgpassword");
+  if (passwordData) {
+    const parsedData = JSON.parse(passwordData);
+    return parsedData.key;
+  } else {
+    return null;
+  }
+}
+
 function getProFromLocalStorage() {
   const orgData = localStorage.getItem("chutodopro");
   if (orgData) {
@@ -402,7 +413,7 @@ async function getTasksFromServer() {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ email: email, password: password, orgName: organization, proName: project }),
+      body: JSON.stringify({ email: email, password: password, orgName: organization, orgPassword: organizationPassword, proName: project }),
     });
     if (respone.ok) {
       const status = await respone.json();
@@ -422,7 +433,7 @@ async function addTaskOnServer(task) {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ email: email, password: password, orgName: organization, proName: project, task: task }),
+      body: JSON.stringify({ email: email, password: password, orgName: organization, orgPassword: organizationPassword, proName: project, task: task }),
     });
   } catch (error) {
     console.log("Error", error);
@@ -436,7 +447,7 @@ async function deleteTaskOnServer(id) {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ email: email, password: password, orgName: organization, proName: project, id: id }),
+      body: JSON.stringify({ email: email, password: password, orgName: organization, orgPassword: organizationPassword, proName: project, deleteID: id }),
     });
   } catch (error) {
     console.log("Error", error);
@@ -450,7 +461,7 @@ async function editTaskOnServer(task) {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ email: email, password: password, orgName: organization, proName: project, task: task }),
+      body: JSON.stringify({ email: email, password: password, orgName: organization, orgPassword: organizationPassword, proName: project, task: task }),
     });
   } catch (error) {
     console.log("Error", error);
@@ -464,7 +475,7 @@ async function completeTaskOnServer(id) {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ email: email, password: password, orgName: organization, proName: project, completeTaskID: id }),
+      body: JSON.stringify({ email: email, password: password, orgName: organization, orgPassword: organizationPassword, proName: project, completeTaskID: id }),
     });
   } catch (error) {
     console.log("Error", error);

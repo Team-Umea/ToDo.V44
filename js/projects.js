@@ -1,8 +1,10 @@
 const body = document.body;
+const projectsContainer = document.createElement("ul");
 
 const email = getEmailFromLocalStorage();
 const password = getPasswordFromLocalStorage();
 const organization = getOrgFromLocalStorage();
+const organizationPassword = getOrgPasswordFromLocalStorage();
 // let passChangeCode;
 
 let form;
@@ -13,8 +15,9 @@ let labels = [];
 
 // const IP = "https://todobackend-vuxr.onrender.com/";
 const IP = "http://localhost:3000/";
-const createProjectEndPoint = IP + "createProject";
 const getOrgsProjectsEndPoint = IP + "getOrgsProjects";
+const createProjectEndPoint = IP + "createProject";
+const deleteProjectEndPoint = IP + "deleteProject";
 
 function init() {
   createNewProjectForm();
@@ -67,14 +70,23 @@ function createNewProjectForm() {
 async function createUlFromProjects() {
   const projects = await getOrgsProjects();
 
+  console.log(projects);
+  projectsContainer.innerHTML = "";
+
   if (projects && projects.length) {
-    const container = document.createElement("ul");
-    container.setAttribute("class", "projectsUl");
+    projectsContainer.classList.remove("hidden");
+    projectsContainer.setAttribute("class", "projectsUl");
     projects.forEach((pro) => {
       const li = document.createElement("li");
+      const selectBtn = document.createElement("button");
       const proName = document.createElement("p");
+      const trashBin = document.createElement("img");
 
-      li.addEventListener("click", () => {
+      li.setAttribute("class", "projectLi");
+
+      selectBtn.setAttribute("class", "btn btnGreen");
+      selectBtn.innerText = "Select";
+      selectBtn.addEventListener("click", () => {
         saveProToLocalStorage(pro);
         setTimeout(() => {
           redirectToAnotherPage("todo.html");
@@ -83,10 +95,21 @@ async function createUlFromProjects() {
 
       proName.innerText = pro;
 
+      trashBin.setAttribute("src", "../icons/trashBin.svg");
+      trashBin.setAttribute("alt", "Delte project");
+      trashBin.setAttribute("title", "Project creator or organization admin can delete project");
+      trashBin.addEventListener("click", () => {
+        deleteProject(pro);
+      });
+
+      li.appendChild(selectBtn);
       li.appendChild(proName);
-      container.appendChild(li);
+      li.appendChild(trashBin);
+      projectsContainer.appendChild(li);
     });
-    body.appendChild(container);
+    body.appendChild(projectsContainer);
+  } else {
+    projectsContainer.classList.add("hidden");
   }
 }
 
@@ -215,12 +238,52 @@ function getOrgFromLocalStorage() {
   }
 }
 
-function redirectToAnotherPage(path) {
-  window.location.href = path;
+function getOrgPasswordFromLocalStorage() {
+  const passwordData = localStorage.getItem("chutodoorgpassword");
+  if (passwordData) {
+    const parsedData = JSON.parse(passwordData);
+    return parsedData.key;
+  } else {
+    return null;
+  }
 }
 
 function saveProToLocalStorage(name) {
   localStorage.setItem("chutodopro", JSON.stringify({ key: name }));
+}
+
+function removeFromLocalStorage(key) {
+  if (localStorage.getItem(key) !== null) {
+    localStorage.removeItem(key);
+  }
+}
+
+function redirectToAnotherPage(path) {
+  window.location.href = path;
+}
+
+function reloadPage() {
+  location.reload();
+}
+
+async function getOrgsProjects() {
+  try {
+    const respone = await fetch(getOrgsProjectsEndPoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email: email, password: password, orgName: organization, orgPassword: organizationPassword }),
+    });
+    if (respone.ok) {
+      const status = await respone.json();
+      if (status.ok) {
+        return status.projects;
+      }
+    }
+  } catch (error) {
+    console.error("Error: ", error);
+  }
 }
 
 async function createProject(name) {
@@ -230,7 +293,7 @@ async function createProject(name) {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ email: email, password: password, name: name, org: organization }),
+      body: JSON.stringify({ email: email, password: password, orgName: organization, orgPassword: organizationPassword, proName: name }),
     });
     if (respone.ok) {
       const status = await respone.json();
@@ -246,19 +309,23 @@ async function createProject(name) {
   }
 }
 
-async function getOrgsProjects() {
+async function deleteProject(name) {
   try {
-    const respone = await fetch(getOrgsProjectsEndPoint, {
+    const respone = await fetch(deleteProjectEndPoint, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ email: email, password: password, org: organization }),
+      body: JSON.stringify({ email: email, password: password, orgName: organization, orgPassword: organizationPassword, proName: name }),
     });
     if (respone.ok) {
       const status = await respone.json();
       if (status.ok) {
-        return status.projects;
+        const key = "chutodopro";
+        removeFromLocalStorage(key);
+        setTimeout(() => {
+          createUlFromProjects();
+        }, 100);
       }
     }
   } catch (error) {
