@@ -35,6 +35,7 @@ function init() {
 init();
 
 function createJoinOrgForm() {
+  const h1 = document.createElement("h1");
   const container = document.createElement("div");
   const orgForm = document.createElement("form");
   const header = document.createElement("p");
@@ -43,6 +44,8 @@ function createJoinOrgForm() {
   const organizations = document.createElement("ul");
   const btn = document.createElement("button");
   const formMessage = document.createElement("p");
+
+  h1.innerText = `Welcome ${getUserAsName()} to organizations`;
 
   container.setAttribute("class", "authContainer");
 
@@ -86,6 +89,7 @@ function createJoinOrgForm() {
   container.appendChild(orgForm);
   container.appendChild(formMessage);
 
+  body.appendChild(h1);
   body.appendChild(container);
 
   const orgPassword = wrappers[0];
@@ -216,8 +220,25 @@ async function createUsersOrgs() {
     orgsContainer.setAttribute("class", "usersOrgsContainer");
     orgsUl.setAttribute("class", "usersOrgsUl");
     orgs.reverse().forEach((org) => {
+      const organizationName = org.name;
+      const organizationPassword = org.password;
+      const organizationDate = org.date;
+      const organizationAdmin = org.isAdmin ? "You" : extractUser(org.admin);
+      const organizationMembers = org.members;
+
       const orgLi = document.createElement("li");
+      const orgInfoContainer = document.createElement("div");
       const orgName = document.createElement("h3");
+      orgInfoContainer.setAttribute("class", "orgInfoContainer");
+      orgName.innerText = capitalize(organizationName);
+
+      createIconContainer(orgInfoContainer, "../icons/calendar.svg", `${organizationName} created at ${organizationDate}`, `${organizationName} created at ${organizationDate}`, organizationDate, "Left");
+
+      createIconContainer(orgInfoContainer, "../icons/person.svg", `${organizationAdmin} is ${organizationName} admin`, `${organizationAdmin} is ${organizationName} admin`, organizationAdmin, "Left");
+
+      createIconContainer(orgInfoContainer, "../icons/group.svg", `${organizationName} has ${organizationMembers} members`, `${organizationName} has ${organizationMembers} members`, organizationMembers, "Right");
+
+      orgInfoContainer.children[1].classList.add("centerIcon");
 
       const btnContainer = document.createElement("div");
       const selectBtn = document.createElement("button");
@@ -227,19 +248,17 @@ async function createUsersOrgs() {
 
       btnContainer.setAttribute("class", "orgsUlBtnContainer");
 
-      orgName.innerText = org.name;
-
       selectBtn.innerText = "Select";
       selectBtn.setAttribute("class", "btn btnGreen");
-      usersOrgsButtonEvent(0, selectBtn, undefined, false, [org.name, org.password]);
+      usersOrgsButtonEvent(0, selectBtn, undefined, false, [organizationName, organizationPassword]);
 
       leaveBtn.innerText = "Leave";
       leaveBtn.setAttribute("class", "btn btnYellow");
-      usersOrgsButtonEvent(1, leaveBtn, deleteBtn, true, [org.name]);
+      usersOrgsButtonEvent(1, leaveBtn, deleteBtn, true, [organizationName]);
 
       deleteBtn.innerText = "Delete";
       org.isAdmin ? deleteBtn.setAttribute("class", "btn btnRed") : deleteBtn.setAttribute("class", "btn btnRed hidden");
-      usersOrgsButtonEvent(2, deleteBtn, leaveBtn, true, [org.name]);
+      usersOrgsButtonEvent(2, deleteBtn, leaveBtn, true, [organizationName]);
 
       resetOrgPasswordBtn.innerText = "Reset Password";
       org.isAdmin ? resetOrgPasswordBtn.setAttribute("class", "btn btnGrey") : resetOrgPasswordBtn.setAttribute("class", "btn btnGrey hidden");
@@ -254,6 +273,7 @@ async function createUsersOrgs() {
       btnContainer.appendChild(deleteBtn);
       btnContainer.appendChild(resetOrgPasswordBtn);
 
+      orgLi.appendChild(orgInfoContainer);
       orgLi.appendChild(orgName);
       orgLi.appendChild(btnContainer);
       createResetOrgPasswordForm(orgLi, org.name);
@@ -278,6 +298,25 @@ async function createUsersOrgs() {
 
     initOrgsCarousel(orgsUl, orgsUl.children, leftBtn, rightBtn);
   }
+}
+
+function createIconContainer(parent, src, alt, title, text, dir) {
+  const container = document.createElement("div");
+  const desc = document.createElement("p");
+  const icon = document.createElement("img");
+
+  container.setAttribute("class", `iconContainer iconContainer${dir}`);
+  container.setAttribute("title", title);
+
+  desc.innerText = text;
+
+  icon.setAttribute("src", src);
+  icon.setAttribute("alt", alt);
+
+  container.appendChild(icon);
+  container.appendChild(desc);
+
+  parent.appendChild(container);
 }
 
 function initOrgsCarousel(carousel, items, nextButton, prevButton) {
@@ -560,6 +599,22 @@ function clearInputs() {
   inputs.forEach((input) => (input.value = ""));
 }
 
+function extractUser(email) {
+  const firstName = email.split(".")[0];
+  const lastName = email.split(".")[1];
+
+  const fullNameCaps = `${capitalize(firstName)} ${capitalize(lastName).replace(/[^a-zA-Z].*/, "")}`;
+  return fullNameCaps;
+}
+
+function getUserAsName() {
+  return email ? extractUser(email) : "";
+}
+
+function capitalize(str) {
+  return str[0].toUpperCase() + str.slice(1);
+}
+
 function getEmailFromLocalStorage() {
   const emailData = localStorage.getItem("chutodoemail");
   if (emailData) {
@@ -756,6 +811,7 @@ async function changeOrganizationPassword(name, orgPassword, confirmOrgPassword)
       const status = await response.json();
       if (status.ok) {
         saveOrgToLocalStorage(name);
+        saveOrgPasswordToLocalStorage(orgPassword);
         setTimeout(() => {
           redirectToAnotherPage(status.path);
         }, 100);

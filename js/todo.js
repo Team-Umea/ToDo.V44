@@ -1,3 +1,4 @@
+const toDoH1 = document.getElementsByTagName("h1")[0];
 const addTaskForm = document.getElementById("addTask");
 const addTaskTitle = document.getElementById("taskTitleInput");
 const addTaskDesc = document.getElementById("taskDescInput");
@@ -28,8 +29,8 @@ const editTaskEndPoint = IP + "editTask";
 const completeTaskEndPoint = IP + "completeTask";
 
 async function load() {
+  toDoH1.innerText = `Welcome ${getUserAsName()} to ToDo in project ${capitalize(project)}`;
   toDo = await getTasksFromServer();
-  console.log("Todos: ", toDo);
   toDo.forEach((task) => (task.visible = true));
   updateToDo();
 }
@@ -404,6 +405,22 @@ function getProFromLocalStorage() {
   } else {
     return null;
   }
+}
+
+function extractName(email) {
+  const firstName = email.split(".")[0];
+  const lastName = email.split(".")[1];
+
+  const fullNameCaps = `${capitalize(firstName)} ${capitalize(lastName).replace(/[^a-zA-Z].*/, "")}`;
+  return fullNameCaps;
+}
+
+function capitalize(str) {
+  return str[0].toUpperCase() + str.slice(1);
+}
+
+function getUserAsName() {
+  return email ? extractName(email) : "";
 }
 
 async function getTasksFromServer() {

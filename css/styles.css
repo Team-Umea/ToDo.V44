@@ -16,6 +16,10 @@ body {
   margin: 0;
 }
 
+h1 {
+  text-align: center;
+}
+
 .authContainer,
 .formContainer {
   width: min(100%, 500px);
@@ -161,6 +165,50 @@ input:focus {
   overflow: hidden;
 }
 
+.orgInfoContainer {
+  display: flex;
+  width: 100%;
+  /* max-width: 86%; */
+  /* background-color: green; */
+  justify-content: space-between;
+  position: relative;
+}
+
+.dateAdminContainer {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.iconContainer {
+  display: flex;
+  align-items: center;
+  height: fit-content;
+  gap: 3px;
+}
+
+.centerIcon {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translateX(-50%) translateY(-50%);
+}
+
+.iconContainerRight {
+  flex-direction: row-reverse;
+}
+
+.iconContainer img {
+  width: 20px;
+}
+
+.iconContainer p {
+  font-size: 0.8rem;
+  margin: 0;
+  padding: 0;
+  align-self: center;
+}
+
 .usersOrgsUl {
   list-style: none;
   display: flex;
@@ -257,7 +305,7 @@ input:focus {
   max-width: 700px;
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
+  gap: 1rem;
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   padding: 20px;
@@ -265,28 +313,63 @@ input:focus {
 }
 
 .projectsUl li {
-  padding: 1rem;
+  padding: 20px;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-radius: 4px;
-  background-color: rgb(207, 204, 204);
+  flex-direction: column;
+  gap: 30px;
+  border-radius: 10px;
+  background: rgb(238, 234, 234);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease-in-out;
 }
 
-.projectsUl li button {
+.projectsUl li:hover {
+  background: rgb(223, 220, 220);
+}
+
+.projectsUl .topContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+}
+
+.projectsUl .topContainer button {
   width: fit-content;
   align-self: center;
   margin: 0;
 }
 
-.projectsUl li img {
+.projectsUl .topContainer button:hover {
+  transform: scale(1.03);
+}
+
+.projectsUl .topContainer img {
+  display: inline-block;
+  transition: all 0.3s ease-in-out;
+  cursor: pointer;
+}
+
+.projectsUl .topContainer img:hover {
+  transform: scale(1.17);
+}
+
+.projectsUl .topContainer h2 {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translateX(-50%) translateY(-50%);
+}
+
+.projectsUl .topContainer img {
   width: 30px;
 }
 
-.projectsUl li:hover {
-  background-color: rgb(224, 217, 217);
+.projectsUl .projectInfoContainer {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-self: center;
 }
 
 .m-1rem {

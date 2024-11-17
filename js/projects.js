@@ -29,6 +29,7 @@ function init() {
 init();
 
 function createNewProjectForm() {
+  const h1 = document.createElement("h1");
   const container = document.createElement("div");
   const projectForm = document.createElement("form");
   const header = document.createElement("p");
@@ -36,9 +37,11 @@ function createNewProjectForm() {
   const btn = document.createElement("button");
   const proMessage = document.createElement("p");
 
+  h1.innerText = `Welcome ${getUserAsName()} to projects in ${capitalize(organization)}`;
+
   container.setAttribute("class", "formContainer");
 
-  header.innerText = `Create new project in ${organization}`;
+  header.innerText = `Create new project in ${capitalize(organization)}`;
   header.setAttribute("class", "formHeader");
 
   proName.setAttribute("placeholder", "Project name");
@@ -64,47 +67,63 @@ function createNewProjectForm() {
   container.appendChild(projectForm);
   container.appendChild(proMessage);
 
+  body.appendChild(h1);
   body.appendChild(container);
 }
 
 async function createUlFromProjects() {
   const projects = await getOrgsProjects();
 
-  console.log(projects);
   projectsContainer.innerHTML = "";
 
   if (projects && projects.length) {
     projectsContainer.classList.remove("hidden");
     projectsContainer.setAttribute("class", "projectsUl");
     projects.forEach((pro) => {
+      const projectName = pro.name;
+      const projectDate = pro.date;
+      const projectCreator = pro.creator === email ? "You" : extractName(pro.creator);
+
       const li = document.createElement("li");
+      const topContainer = document.createElement("div");
       const selectBtn = document.createElement("button");
-      const proName = document.createElement("p");
+      const proName = document.createElement("h2");
       const trashBin = document.createElement("img");
+      const projectInfoContainer = document.createElement("div");
+
+      topContainer.setAttribute("class", "topContainer");
+      projectInfoContainer.setAttribute("class", "projectInfoContainer");
 
       li.setAttribute("class", "projectLi");
 
       selectBtn.setAttribute("class", "btn btnGreen");
       selectBtn.innerText = "Select";
       selectBtn.addEventListener("click", () => {
-        saveProToLocalStorage(pro);
+        saveProToLocalStorage(projectName);
         setTimeout(() => {
           redirectToAnotherPage("todo.html");
         }, 100);
       });
 
-      proName.innerText = pro;
+      proName.innerText = capitalize(projectName);
 
       trashBin.setAttribute("src", "../icons/trashBin.svg");
       trashBin.setAttribute("alt", "Delte project");
       trashBin.setAttribute("title", "Project creator or organization admin can delete project");
       trashBin.addEventListener("click", () => {
-        deleteProject(pro);
+        deleteProject(projectName);
       });
 
-      li.appendChild(selectBtn);
-      li.appendChild(proName);
-      li.appendChild(trashBin);
+      topContainer.appendChild(selectBtn);
+      topContainer.appendChild(proName);
+      topContainer.appendChild(trashBin);
+
+      createIconContainer(projectInfoContainer, "../icons/calendar.svg", `${capitalize(projectName)} create at ${projectDate}`, `${capitalize(projectName)} create at ${projectDate}`, projectDate, "Left");
+
+      createIconContainer(projectInfoContainer, "../icons/person.svg", `${projectCreator} created ${capitalize(projectName)}`, `${projectCreator} created ${capitalize(projectName)}`, projectCreator, "Right");
+
+      li.appendChild(topContainer);
+      li.appendChild(projectInfoContainer);
       projectsContainer.appendChild(li);
     });
     body.appendChild(projectsContainer);
@@ -151,6 +170,25 @@ function createInputPasswordToggle(parent, id, placeholder, hidden) {
 
   parent.appendChild(wrapper);
   parent.appendChild(label);
+}
+
+function createIconContainer(parent, src, alt, title, text, dir) {
+  const container = document.createElement("div");
+  const desc = document.createElement("p");
+  const icon = document.createElement("img");
+
+  container.setAttribute("class", `iconContainer iconContainer${dir}`);
+  container.setAttribute("title", title);
+
+  desc.innerText = text;
+
+  icon.setAttribute("src", src);
+  icon.setAttribute("alt", alt);
+
+  container.appendChild(icon);
+  container.appendChild(desc);
+
+  parent.appendChild(container);
 }
 
 function formEvent() {
@@ -264,6 +302,22 @@ function redirectToAnotherPage(path) {
 
 function reloadPage() {
   location.reload();
+}
+
+function extractName(email) {
+  const firstName = email.split(".")[0];
+  const lastName = email.split(".")[1];
+
+  const fullNameCaps = `${capitalize(firstName)} ${capitalize(lastName).replace(/[^a-zA-Z].*/, "")}`;
+  return fullNameCaps;
+}
+
+function capitalize(str) {
+  return str[0].toUpperCase() + str.slice(1);
+}
+
+function getUserAsName() {
+  return email ? extractName(email) : "";
 }
 
 async function getOrgsProjects() {
