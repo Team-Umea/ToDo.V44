@@ -99,7 +99,7 @@ function formEvents() {
     const confirmPassword = inputs[1].value;
 
     if (password.length > 7 && password === confirmPassword) {
-      addUser(email, password, confirmPassword);
+      signUp(email, password, confirmPassword);
       resetLables();
     } else {
       setSubmitMessage("Lösenorden måste vara samma och minst vara 8 tecken långa");
@@ -184,7 +184,7 @@ function redirectToAnotherPage(path) {
   window.location.href = path;
 }
 
-async function addUser(email, password, confirmPassword) {
+async function signUp(email, password, confirmPassword) {
   try {
     const response = await fetch(addUserEndPoint, {
       method: "POST",
@@ -197,7 +197,9 @@ async function addUser(email, password, confirmPassword) {
       const status = await response.json();
       if (status.ok) {
         savePasswordToLocalStorage(password);
-        redirectToAnotherPage(status.path);
+        setTimeout(() => {
+          redirectToAnotherPage(status.path);
+        }, 100);
       }
     }
   } catch (error) {

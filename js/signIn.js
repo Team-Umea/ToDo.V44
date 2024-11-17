@@ -316,6 +316,10 @@ function checkPasswordMatch(value1, value2, label) {
   }
 }
 
+function savePasswordToLocalStorage(password) {
+  localStorage.setItem("chutodopassword", JSON.stringify({ key: password }));
+}
+
 async function checkCredentials(emailToSubmit) {
   const users = await getUsers();
   const user = users.filter((email) => email === emailToSubmit);
@@ -365,7 +369,10 @@ async function signIn(email, password) {
     if (response.ok) {
       const status = await response.json();
       if (status.ok) {
-        redirectToAnotherPage(status.path);
+        savePasswordToLocalStorage(password);
+        setTimeout(() => {
+          redirectToAnotherPage(status.path);
+        }, 100);
       }
     }
   } catch (error) {

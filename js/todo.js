@@ -16,18 +16,25 @@ const cancelSearch = document.getElementById("cancelSearch");
 
 let toDo = [];
 let orgTodo = [];
-let project = getProFromLocalStorage();
+const email = getEmailFromLocalStorage();
+const password = getPasswordFromLocalStorage();
+const organization = getOrgFromLocalStorage();
+const project = getProFromLocalStorage();
 // const IP = "https://todobackend-vuxr.onrender.com/";
 const IP = "http://localhost:3000/";
-const getEndPoint = IP + "tasks";
-const addEndPoint = IP + "addTask";
-const deleteEndPoint = IP + "deleteTask";
-const editEndPoint = IP + "editTask";
-const completeEndPoint = IP + "completeTask";
+const getTasksEndPoint = IP + "tasks";
+const addTaskEndPoint = IP + "addTask";
+const deleteTaskEndPoint = IP + "deleteTask";
+const editTaskEndPoint = IP + "editTask";
+const completeTaskEndPoint = IP + "completeTask";
 
 async function load() {
   toDo = await getTasks();
-  console.log("Project: ", project);
+  console.log(email);
+  console.log(password);
+  console.log(organization);
+  console.log(project);
+  // console.log("Project: ", project);
   console.log("Todos: ", toDo);
   orgTodo = toDo;
   renderList();
@@ -37,21 +44,32 @@ load();
 
 async function getTasks() {
   try {
-    const res = await fetch(getEndPoint);
-    return (users = await res.json());
+    const respone = await fetch(getTasksEndPoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email: email, password: password, orgName: organization, proName: project }),
+    });
+    if (respone.ok) {
+      const status = await respone.json();
+      if (status.ok) {
+        return status.tasks;
+      }
+    }
   } catch (error) {
-    console.log("There was a problem fetching users");
+    console.error("Error: ", error);
   }
 }
 
 async function addTask(task) {
   try {
-    const response = await fetch(addEndPoint, {
+    const response = await fetch(addTaskEndPoint, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ task: task }),
+      body: JSON.stringify({ email: email, password: password, orgName: organization, proName: project, task: task }),
     });
     const status = await response.json();
     if (status.ok) {
@@ -67,12 +85,12 @@ async function addTask(task) {
 
 async function deleteTask(id) {
   try {
-    const response = await fetch(deleteEndPoint, {
-      method: "PUT",
+    const response = await fetch(deleteTaskEndPoint, {
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ id: id }),
+      body: JSON.stringify({ email: email, password: password, orgName: organization, proName: project, id: id }),
     });
     if (response.ok) {
       const status = await response.json();
@@ -88,14 +106,14 @@ async function deleteTask(id) {
   }
 }
 
-async function editTaskOnServer(tasks) {
+async function editTaskOnServer(task) {
   try {
-    const response = await fetch(editEndPoint, {
-      method: "PUT",
+    const response = await fetch(editTaskEndPoint, {
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ tasks: tasks }),
+      body: JSON.stringify({ email: email, password: password, orgName: organization, proName: project, task: task }),
     });
     if (response.ok) {
       const status = await response.json();
@@ -113,12 +131,12 @@ async function editTaskOnServer(tasks) {
 
 async function completeTask(id) {
   try {
-    const response = await fetch(completeEndPoint, {
-      method: "PUT",
+    const response = await fetch(completeTaskEndPoint, {
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ id: id }),
+      body: JSON.stringify({ email: email, password: password, orgName: organization, proName: project, completeTaskID: id }),
     });
     if (response.ok) {
       const status = await response.json();
@@ -162,6 +180,8 @@ addTaskForm.addEventListener("submit", function (event) {
         tags: tags,
       };
 
+      console.log("New Task: ", task);
+
       addTask(task);
       renderList();
       resetForm();
@@ -176,36 +196,43 @@ addTaskForm.addEventListener("submit", function (event) {
         isDone: document.getElementById("currentStatus").value.isDone,
       };
 
-      editTask(task);
-      editTaskOnServer(toDo);
+      const temp = checkTaskTags(task);
+      console.log("Edit: ", temp);
+
+      editTaskOnServer(checkTaskTags(task));
       resetForm();
     }
   }
   orgTodo = toDo;
   resetStatus();
-  localStorage.setItem("tasks", JSON.stringify(toDo));
 });
 
-saveToLocalStorage.addEventListener("click", (e) => {
-  orgTodo = toDo;
-  localStorage.setItem("tasks", JSON.stringify(toDo));
-});
-
-function editTask(specificTask) {
+function checkTaskTags(task) {
   const tempTags = [tag1, tag2, tag3];
-  toDo = toDo.map((task) => {
-    if (task.id === specificTask.id) {
-      const tags = [];
-      tempTags.forEach((tag) => {
-        if (tag.checked) {
-          tags.push(tag.value);
-        }
-      });
-      return { ...task, title: specificTask.title, desc: specificTask.desc, tags: tags };
+  const tags = [];
+  tempTags.forEach((tag) => {
+    if (tag.checked) {
+      tags.push(tag.value);
     }
-    return task;
   });
+  return { ...task, tags: tags };
 }
+
+// function editTask(specificTask) {
+//   const tempTags = [tag1, tag2, tag3];
+//   toDo = toDo.map((task) => {
+//     if (task.id === specificTask.id) {
+//       const tags = [];
+//       tempTags.forEach((tag) => {
+//         if (tag.checked) {
+//           tags.push(tag.value);
+//         }
+//       });
+//       return { ...task, title: specificTask.title, desc: specificTask.desc, tags: tags };
+//     }
+//     return task;
+//   });
+// }
 
 function resetStatus() {
   const editTaskBtn = document.getElementById("editTask");
@@ -388,6 +415,36 @@ function stopSearch() {
   sortList();
   renderList();
   cancelSearch.classList.add("hidden");
+}
+
+function getEmailFromLocalStorage() {
+  const emailData = localStorage.getItem("chutodoemail");
+  if (emailData) {
+    const parsedData = JSON.parse(emailData);
+    return parsedData.key;
+  } else {
+    return null;
+  }
+}
+
+function getPasswordFromLocalStorage() {
+  const passwordData = localStorage.getItem("chutodopassword");
+  if (passwordData) {
+    const parsedData = JSON.parse(passwordData);
+    return parsedData.key;
+  } else {
+    return null;
+  }
+}
+
+function getOrgFromLocalStorage() {
+  const orgData = localStorage.getItem("chutodoorg");
+  if (orgData) {
+    const parsedData = JSON.parse(orgData);
+    return parsedData.key;
+  } else {
+    return null;
+  }
 }
 
 function getProFromLocalStorage() {

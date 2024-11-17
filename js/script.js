@@ -16,15 +16,25 @@ const signInEndPoint = IP + "signIn";
 async function init() {
   const email = getEmailFromLocalStorage();
   const password = getPasswordFromLocalStorage();
+  const organization = getOrgFromLocalStorage();
+  const project = getProFromLocalStorage();
 
   if (email && password) {
-    const attemptSignIn = await signIn(email, password);
-    if (attemptSignIn.valid === true) {
-      redirectToAnotherPage(attemptSignIn.path);
+    if (organization) {
+      if (project) {
+        redirectToAnotherPage("todo.html");
+      } else {
+        redirectToAnotherPage("projects.html");
+      }
     } else {
-      createEmailAuth();
-      formEvents();
-      inputEvents();
+      const attemptSignIn = await signIn(email, password);
+      if (attemptSignIn.valid === true) {
+        redirectToAnotherPage(attemptSignIn.path);
+      } else {
+        createEmailAuth();
+        formEvents();
+        inputEvents();
+      }
     }
   } else if (email) {
     const valueOfExists = await userExistsOnServer();
@@ -283,6 +293,26 @@ function getPasswordFromLocalStorage() {
   const passwordData = localStorage.getItem("chutodopassword");
   if (passwordData) {
     const parsedData = JSON.parse(passwordData);
+    return parsedData.key;
+  } else {
+    return null;
+  }
+}
+
+function getOrgFromLocalStorage() {
+  const orgData = localStorage.getItem("chutodoorg");
+  if (orgData) {
+    const parsedData = JSON.parse(orgData);
+    return parsedData.key;
+  } else {
+    return null;
+  }
+}
+
+function getProFromLocalStorage() {
+  const orgData = localStorage.getItem("chutodopro");
+  if (orgData) {
+    const parsedData = JSON.parse(orgData);
     return parsedData.key;
   } else {
     return null;

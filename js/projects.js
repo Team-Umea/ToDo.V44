@@ -17,7 +17,7 @@ const createProjectEndPoint = IP + "createProject";
 const getOrgsProjectsEndPoint = IP + "getOrgsProjects";
 
 function init() {
-  createSignInAuth();
+  createNewProjectForm();
   createUlFromProjects();
   formEvent();
   noWhiteSpaceInput();
@@ -25,7 +25,7 @@ function init() {
 
 init();
 
-function createSignInAuth() {
+function createNewProjectForm() {
   const container = document.createElement("div");
   const projectForm = document.createElement("form");
   const header = document.createElement("p");
@@ -33,13 +33,17 @@ function createSignInAuth() {
   const btn = document.createElement("button");
   const proMessage = document.createElement("p");
 
-  container.setAttribute("class", "authContainer");
+  container.setAttribute("class", "formContainer");
 
-  header.innerText = "Create new project";
+  header.innerText = `Create new project in ${organization}`;
   header.setAttribute("class", "formHeader");
 
   proName.setAttribute("placeholder", "Project name");
   proName.setAttribute("class", "m-1rem");
+
+  proName.addEventListener("input", () => {
+    setSubmitMessage("");
+  });
 
   btn.innerText = "Create";
   btn.setAttribute("type", "submit");
@@ -63,7 +67,7 @@ function createSignInAuth() {
 async function createUlFromProjects() {
   const projects = await getOrgsProjects();
 
-  if (projects.length) {
+  if (projects && projects.length) {
     const container = document.createElement("ul");
     container.setAttribute("class", "projectsUl");
     projects.forEach((pro) => {
@@ -72,7 +76,9 @@ async function createUlFromProjects() {
 
       li.addEventListener("click", () => {
         saveProToLocalStorage(pro);
-        redirectToAnotherPage("todo.html");
+        setTimeout(() => {
+          redirectToAnotherPage("todo.html");
+        }, 100);
       });
 
       proName.innerText = pro;
@@ -127,16 +133,12 @@ function createInputPasswordToggle(parent, id, placeholder, hidden) {
 function formEvent() {
   form.addEventListener("submit", (e) => {
     e.preventDefault();
-
     const name = inputs[0].value;
 
     if (name) {
       clearInputs();
       resetLables();
-      saveProToLocalStorage(name);
-      setTimeout(() => {
-        createProject(name);
-      }, 200);
+      createProject(name);
     } else {
       setSubmitMessage("Enter a project name");
     }
@@ -233,7 +235,10 @@ async function createProject(name) {
     if (respone.ok) {
       const status = await respone.json();
       if (status.ok) {
-        redirectToAnotherPage(status.path);
+        saveProToLocalStorage(name);
+        setTimeout(() => {
+          redirectToAnotherPage(status.path);
+        }, 100);
       }
     }
   } catch (error) {

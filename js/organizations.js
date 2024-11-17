@@ -4,7 +4,6 @@ const email = getEmailFromLocalStorage();
 const password = getPasswordFromLocalStorage();
 let passChangeCode;
 let selectedOrganization;
-// let form;
 let forms = [];
 let submitMessages = [];
 
@@ -206,7 +205,7 @@ async function searchOrganizations(parent, searchQuery) {
 async function createUsersOrgs() {
   const orgs = await getUsersOrgs();
 
-  if (orgs.length > 0) {
+  if (orgs && orgs.length > 0) {
     const orgsHeader = document.createElement("h2");
     const orgsContainer = document.createElement("div");
     const orgsUl = document.createElement("ul");
@@ -232,7 +231,7 @@ async function createUsersOrgs() {
 
       selectBtn.innerText = "Select";
       selectBtn.setAttribute("class", "btn btnGreen");
-      usersOrgsButtonEvent(0, selectBtn, false, org.name);
+      usersOrgsButtonEvent(0, selectBtn, undefined, false, org.name);
 
       leaveBtn.innerText = "Leave";
       leaveBtn.setAttribute("class", "btn btnYellow");
@@ -244,8 +243,9 @@ async function createUsersOrgs() {
 
       resetOrgPasswordBtn.innerText = "Reset Password";
       org.isAdmin ? resetOrgPasswordBtn.setAttribute("class", "btn btnGrey") : resetOrgPasswordBtn.setAttribute("class", "btn btnGrey hidden");
-      usersOrgsButtonEvent(3, resetOrgPasswordBtn, false, org.name);
       resetOrgPasswordBtn.addEventListener("click", () => {
+        deleteBtn.innerText = "Delete";
+        leaveBtn.innerText = "Leave";
         orgLi.lastElementChild.classList.remove("hidden");
       });
 
@@ -309,8 +309,10 @@ function usersOrgsButtonEvent(index, btn, linkedBtn, confirm, orgName) {
     const btnText = btn.innerText;
     switch (index) {
       case 0:
-        saveOrgToLocalStorage(btnText);
-        redirectToAnotherPage("projects.html");
+        saveOrgToLocalStorage(orgName);
+        setTimeout(() => {
+          redirectToAnotherPage("projects.html");
+        }, 100);
         break;
       case 1:
         if (confirm) {
@@ -578,6 +580,7 @@ function getPasswordFromLocalStorage() {
 }
 
 function saveOrgToLocalStorage(name) {
+  removeFromLocalStorage("chutodopro");
   localStorage.setItem("chutodoorg", JSON.stringify({ key: name }));
 }
 
@@ -648,7 +651,9 @@ async function joinOrganization(orgName, orgPassword) {
       const status = await response.json();
       if (status.ok) {
         saveOrgToLocalStorage(selectedOrganization);
-        redirectToAnotherPage(status.path);
+        setTimeout(() => {
+          redirectToAnotherPage(status.path);
+        }, 100);
       }
     }
   } catch (error) {
@@ -669,7 +674,9 @@ async function createOrganization(name, orgPassword, confirmPassword) {
       const status = await response.json();
       if (status.ok) {
         saveOrgToLocalStorage(name);
-        redirectToAnotherPage(status.path);
+        setTimeout(() => {
+          redirectToAnotherPage(status.path);
+        }, 100);
       }
     }
   } catch (error) {
@@ -689,9 +696,13 @@ async function leaveOrganization(name) {
     if (response.ok) {
       const status = await response.json();
       if (status.ok) {
-        const key = `chutodoorg${name}`;
-        reloadPage();
-        removeFromLocalStorage(key);
+        const pro = "chutodopro";
+        const org = "chutodoorg";
+        removeFromLocalStorage(pro);
+        removeFromLocalStorage(org);
+        setTimeout(() => {
+          reloadPage();
+        }, 100);
       }
     }
   } catch (error) {
@@ -711,9 +722,13 @@ async function deleteOrganization(name) {
     if (response.ok) {
       const status = await response.json();
       if (status.ok) {
-        const key = `chutodoorg${name}`;
-        reloadPage();
-        removeFromLocalStorage(key);
+        const pro = "chutodopro";
+        const org = "chutodoorg";
+        removeFromLocalStorage(pro);
+        removeFromLocalStorage(org);
+        setTimeout(() => {
+          reloadPage();
+        }, 100);
       }
     }
   } catch (error) {
@@ -734,7 +749,9 @@ async function changeOrganizationPassword(name, orgPassword, confirmOrgPassword)
       const status = await response.json();
       if (status.ok) {
         saveOrgToLocalStorage(name);
-        redirectToAnotherPage(status.path);
+        setTimeout(() => {
+          redirectToAnotherPage(status.path);
+        }, 100);
       }
     }
   } catch (error) {

@@ -16,7 +16,8 @@ body {
   margin: 0;
 }
 
-.authContainer {
+.authContainer,
+.formContainer {
   width: min(100%, 500px);
   background: white;
   border-radius: 8px;
