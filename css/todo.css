@@ -9,11 +9,11 @@ body {
   background-color: #f4f4f9;
   color: #333;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  justify-content: flex-start;
   align-items: center;
   min-height: 100vh;
-  padding: 20px;
-  flex-direction: column;
+  padding-top: 160px;
 }
 
 header {

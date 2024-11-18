@@ -84,7 +84,7 @@ function createSignInAuth() {
 function createInputPasswordToggle(parent, id, placeholder, hidden) {
   const wrapper = document.createElement("div");
   const input = document.createElement("input");
-  const toggle = document.createElement("span");
+  const toggle = document.createElement("img");
   const label = document.createElement("label");
 
   input.setAttribute("placeholder", placeholder);
@@ -94,14 +94,21 @@ function createInputPasswordToggle(parent, id, placeholder, hidden) {
 
   label.setAttribute("for", id);
 
-  toggle.innerHTML = "&#128065";
-  toggle.addEventListener("click", (e) => {
-    e.preventDefault();
-    const toggleIcon = this;
-
+  toggle.setAttribute("src", "../icons/eyeon.svg");
+  toggle.setAttribute("alt", "Show password");
+  toggle.setAttribute("title", "Show password");
+  toggle.addEventListener("click", () => {
     const type = input.getAttribute("type") === "password" ? "text" : "password";
     input.setAttribute("type", type);
-    toggleIcon.innerHTML = type === "password" ? "\u{1F641}" : "\u{1F60E}";
+    if (type === "password") {
+      toggle.setAttribute("src", "../icons/eyeon.svg");
+      toggle.setAttribute("alt", "Show password");
+      toggle.setAttribute("title", "Show password");
+    } else {
+      toggle.setAttribute("src", "../icons/eyeoff.svg");
+      toggle.setAttribute("alt", "Hide password");
+      toggle.setAttribute("title", "Hide password");
+    }
   });
 
   if (hidden) {

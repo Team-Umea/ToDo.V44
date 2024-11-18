@@ -5,7 +5,6 @@ const email = getEmailFromLocalStorage();
 const password = getPasswordFromLocalStorage();
 const organization = getOrgFromLocalStorage();
 const organizationPassword = getOrgPasswordFromLocalStorage();
-// let passChangeCode;
 
 let form;
 let submitMessage;
@@ -76,8 +75,6 @@ function createNewProjectForm() {
 async function createUlFromProjects() {
   const projects = await getOrgsProjects();
   const orgAdmin = await getOrgAdmin();
-
-  console.log("orgad", orgAdmin);
 
   projectsContainer.innerHTML = "";
 
@@ -158,46 +155,6 @@ function resetTrashBins() {
   });
 }
 
-function createInputPasswordToggle(parent, id, placeholder, hidden) {
-  const wrapper = document.createElement("div");
-  const input = document.createElement("input");
-  const toggle = document.createElement("span");
-  const label = document.createElement("label");
-
-  input.setAttribute("placeholder", placeholder);
-  input.setAttribute("id", id);
-  input.setAttribute("class", "passwordInput");
-  input.setAttribute("type", "password");
-
-  label.setAttribute("for", id);
-
-  toggle.innerHTML = "&#128065";
-  toggle.addEventListener("click", (e) => {
-    e.preventDefault();
-    const toggleIcon = this;
-
-    const type = input.getAttribute("type") === "password" ? "text" : "password";
-    input.setAttribute("type", type);
-    toggleIcon.innerHTML = type === "password" ? "\u{1F641}" : "\u{1F60E}";
-  });
-
-  if (hidden) {
-    wrapper.setAttribute("class", "passwordWrapper hidden");
-  } else {
-    wrapper.setAttribute("class", "passwordWrapper");
-  }
-
-  wrapper.appendChild(input);
-  wrapper.appendChild(toggle);
-
-  inputs.push(input);
-  labels.push(label);
-  wrappers.push(wrapper);
-
-  parent.appendChild(wrapper);
-  parent.appendChild(label);
-}
-
 function createIconContainer(parent, src, alt, title, text, dir) {
   const container = document.createElement("div");
   const desc = document.createElement("p");
@@ -224,32 +181,11 @@ function formEvent() {
 
     if (name) {
       clearInputs();
-      resetLables();
       createProject(name);
     } else {
       setSubmitMessage("Enter a project name");
     }
   });
-}
-
-function checkPasswordLength(value, label) {
-  if (value.length < 8) {
-    label.innerText = "Password must be atleast 8 characters";
-  } else {
-    label.innerText = "";
-  }
-}
-
-function checkPasswordMatch(value1, value2, label) {
-  if (value1 !== value2) {
-    label.innerText = "Passwords must match";
-  } else {
-    label.innerText = "";
-  }
-}
-
-function resetLables() {
-  labels.forEach((label) => (label.innerText = ""));
 }
 
 function setSubmitMessage(msg) {

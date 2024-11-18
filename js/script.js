@@ -25,18 +25,23 @@ async function init() {
   if (email && password) {
     if (organization && organizationPassword) {
       const isAllowedToLoadOrgsProjects = await getOrgsProjects(email, password, organization, organizationPassword);
-
-      if (project && isAllowedToLoadOrgsProjects) {
-        const isAllowedToLoadProject = await getTasksFromServer(email, password, organization, organizationPassword, project);
-        if (isAllowedToLoadProject) {
-          redirectToAnotherPage("todo.html");
-        } else {
+      const users = await getUsers();
+      const userExists = users.includes(email);
+      if (userExists) {
+        if (project && isAllowedToLoadOrgsProjects) {
+          const isAllowedToLoadProject = await getTasksFromServer(email, password, organization, organizationPassword, project);
+          if (isAllowedToLoadProject) {
+            redirectToAnotherPage("todo.html");
+          } else {
+            redirectToAnotherPage("projects.html");
+          }
+        } else if (isAllowedToLoadOrgsProjects) {
           redirectToAnotherPage("projects.html");
+        } else {
+          redirectToAnotherPage("organizations.html");
         }
-      } else if (isAllowedToLoadOrgsProjects) {
-        redirectToAnotherPage("projects.html");
       } else {
-        redirectToAnotherPage("organizations.html");
+        redirectToAnotherPage("signUp.html");
       }
     } else {
       const attemptSignIn = await signIn(email, password);

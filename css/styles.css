@@ -60,6 +60,11 @@ h1 {
   border-radius: 4px;
 }
 
+.passwordWrapper img {
+  width: 20px;
+  cursor: pointer;
+}
+
 input {
   width: 100%;
   padding: 10px;
