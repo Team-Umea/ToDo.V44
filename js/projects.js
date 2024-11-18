@@ -11,7 +11,11 @@ let submitMessage;
 
 let inputs = [];
 let labels = [];
+const sortBtns = [];
 const trashBins = [];
+
+let localProjects = [];
+let localProjectsUnsorted = [];
 
 // const IP = "https://todobackend-vuxr.onrender.com/";
 const IP = "http://localhost:3000/";
@@ -21,13 +25,24 @@ const createProjectEndPoint = IP + "createProject";
 const deleteProjectEndPoint = IP + "deleteProject";
 
 function init() {
+  assignProjects();
   createNewProjectForm();
-  createUlFromProjects();
+  createFilterProjectsContainer();
   formEvent();
+  buttonEvents();
   noWhiteSpaceInput();
 }
 
 init();
+
+async function assignProjects() {
+  const fetchedProjects = await getOrgsProjects();
+  localProjects = fetchedProjects.map((project, index) => {
+    return { ...project, visible: true };
+  });
+  localProjectsUnsorted = localProjects;
+  renderProjectsUl();
+}
 
 function createNewProjectForm() {
   const h1 = document.createElement("h1");
@@ -72,74 +87,209 @@ function createNewProjectForm() {
   body.appendChild(container);
 }
 
-async function createUlFromProjects() {
-  const projects = await getOrgsProjects();
+function createFilterProjectsContainer() {
+  const container = document.createElement("div");
+
+  const sortContainer = document.createElement("div");
+  const searchContainer = document.createElement("div");
+  const sortHeader = document.createElement("h2");
+  const searchHeader = document.createElement("h2");
+
+  const allBtn = document.createElement("input");
+  const newBtn = document.createElement("input");
+  const oldBtn = document.createElement("input");
+  const tasksBtn = document.createElement("input");
+  const nameBtn = document.createElement("input");
+  const usersProjectsBtn = document.createElement("input");
+
+  const allBtnLabel = document.createElement("label");
+  const newBtnLabel = document.createElement("label");
+  const oldBtnLabel = document.createElement("label");
+  const tasksBtnLabel = document.createElement("label");
+  const nameBtnLabel = document.createElement("label");
+  const usersProjectsBtnLabel = document.createElement("label");
+
+  const searchwrapper = document.createElement("div");
+  const searchInput = document.createElement("input");
+  const cancelSearchBtn = document.createElement("button");
+
+  container.setAttribute("class", "filterProjects");
+  sortContainer.setAttribute("class", "sortProjects");
+  searchContainer.setAttribute("class", "searchProjects");
+
+  sortHeader.innerText = "Sort Order";
+  searchHeader.innerText = "Search Projects";
+
+  allBtn.setAttribute("checked", true);
+
+  allBtn.setAttribute("id", "allProjectsBtn");
+  newBtn.setAttribute("id", "newProjectsBtn");
+  oldBtn.setAttribute("id", "oldProjectsBtn");
+  tasksBtn.setAttribute("id", "tasksProjectsBtn");
+  nameBtn.setAttribute("id", "projectNameBtn");
+  usersProjectsBtn.setAttribute("id", "usersProjectsBtn");
+
+  allBtn.setAttribute("type", "radio");
+  newBtn.setAttribute("type", "radio");
+  oldBtn.setAttribute("type", "radio");
+  tasksBtn.setAttribute("type", "radio");
+  nameBtn.setAttribute("type", "radio");
+  usersProjectsBtn.setAttribute("type", "radio");
+
+  allBtn.setAttribute("name", "sortProjectsBtn");
+  newBtn.setAttribute("name", "sortProjectsBtn");
+  oldBtn.setAttribute("name", "sortProjectsBtn");
+  tasksBtn.setAttribute("name", "sortProjectsBtn");
+  nameBtn.setAttribute("name", "sortProjectsBtn");
+  usersProjectsBtn.setAttribute("name", "sortProjectsBtn");
+
+  sortBtns.push(allBtn);
+  sortBtns.push(newBtn);
+  sortBtns.push(oldBtn);
+  sortBtns.push(tasksBtn);
+  sortBtns.push(nameBtn);
+  sortBtns.push(usersProjectsBtn);
+
+  allBtnLabel.innerText = "View All";
+  newBtnLabel.innerText = "Lastest";
+  oldBtnLabel.innerText = "Oldest";
+  tasksBtnLabel.innerText = "Number of Tasks";
+  nameBtnLabel.innerText = "Alphabetical Order";
+  usersProjectsBtnLabel.innerText = "Your projects";
+
+  allBtnLabel.setAttribute("for", "allProjectsBtn");
+  newBtnLabel.setAttribute("for", "newProjectsBtn");
+  oldBtnLabel.setAttribute("for", "oldProjectsBtn");
+  tasksBtnLabel.setAttribute("for", "tasksProjectsBtn");
+  nameBtnLabel.setAttribute("for", "projectNameBtn");
+  usersProjectsBtnLabel.setAttribute("for", "usersProjectsBtn");
+
+  sortContainer.appendChild(allBtn);
+  sortContainer.appendChild(allBtnLabel);
+
+  sortContainer.appendChild(newBtn);
+  sortContainer.appendChild(newBtnLabel);
+
+  sortContainer.appendChild(oldBtn);
+  sortContainer.appendChild(oldBtnLabel);
+
+  sortContainer.appendChild(tasksBtn);
+  sortContainer.appendChild(tasksBtnLabel);
+
+  sortContainer.appendChild(nameBtn);
+  sortContainer.appendChild(nameBtnLabel);
+
+  sortContainer.appendChild(usersProjectsBtn);
+  sortContainer.appendChild(usersProjectsBtnLabel);
+
+  searchInput.setAttribute("placeholder", "Search by project name");
+  searchInput.addEventListener("input", () => {
+    const searchQuery = searchInput.value.trim().toLowerCase();
+    searchInput.value = searchQuery;
+
+    if (searchQuery !== "") {
+      localProjects.forEach((project) => (!project.name.includes(searchQuery) ? (project.visible = false) : (project.visible = true)));
+      renderProjectsUl();
+    } else {
+      localProjects.forEach((project) => (project.visible = true));
+      renderProjectsUl();
+    }
+  });
+
+  cancelSearchBtn.innerText = "Cancel Search";
+  cancelSearchBtn.setAttribute("class", "btn");
+
+  searchwrapper.appendChild(searchInput);
+  searchwrapper.appendChild(cancelSearchBtn);
+
+  searchContainer.appendChild(searchwrapper);
+
+  container.appendChild(sortHeader);
+  container.appendChild(sortContainer);
+  container.appendChild(searchHeader);
+  container.appendChild(searchContainer);
+
+  body.appendChild(container);
+}
+
+async function renderProjectsUl() {
   const orgAdmin = await getOrgAdmin();
 
   projectsContainer.innerHTML = "";
 
-  if (projects && projects.length) {
+  if (localProjects && localProjects.length) {
     projectsContainer.classList.remove("hidden");
     projectsContainer.setAttribute("class", "projectsUl");
-    projects.forEach((pro) => {
-      const projectName = pro.name;
-      const projectDate = pro.date;
-      const projectCreator = pro.creator === email ? "You" : extractUser(pro.creator);
+    localProjects.forEach((pro) => {
+      if (pro.visible) {
+        const projectName = pro.name;
+        const projectDate = pro.date;
+        const projetsTasks = pro.tasks;
+        const projectCreator = pro.creator === email ? "You" : extractUser(pro.creator);
 
-      const li = document.createElement("li");
-      const topContainer = document.createElement("div");
-      const selectBtn = document.createElement("button");
-      const proName = document.createElement("h2");
-      const trashBin = document.createElement("img");
-      const projectInfoContainer = document.createElement("div");
+        const li = document.createElement("li");
+        const topContainer = document.createElement("div");
+        const selectBtn = document.createElement("button");
+        const proName = document.createElement("h2");
+        const trashBin = document.createElement("img");
+        const projectInfoContainer = document.createElement("div");
 
-      topContainer.setAttribute("class", "topContainer");
-      projectInfoContainer.setAttribute("class", "projectInfoContainer");
+        topContainer.setAttribute("class", "topContainer");
+        projectInfoContainer.setAttribute("class", "projectInfoContainer");
 
-      li.setAttribute("class", "projectLi");
+        li.setAttribute("class", "projectLi");
 
-      selectBtn.setAttribute("class", "btn btnGreen");
-      selectBtn.innerText = "Select";
-      selectBtn.addEventListener("click", () => {
-        saveProToLocalStorage(projectName);
-        setTimeout(() => {
-          redirectToAnotherPage("todo.html");
-        }, 100);
-      });
-
-      proName.innerText = capitalize(projectName);
-
-      if (orgAdmin === email || projectCreator === "You") {
-        trashBin.setAttribute("src", "../icons/trashBin.svg");
-        trashBin.setAttribute("alt", "Delete project");
-        trashBin.setAttribute("title", "Delete project");
-        trashBins.push(trashBin);
-        trashBin.addEventListener("click", () => {
-          const src = trashBin.getAttribute("src");
-          if (src.includes("trash")) {
-            resetTrashBins();
-            trashBin.setAttribute("src", "../icons/checkmark.svg");
-            trashBin.setAttribute("alt", "Confirm delete");
-            trashBin.setAttribute("title", "Confirm delete");
-          } else {
-            deleteProject(projectName);
-          }
+        selectBtn.setAttribute("class", "btn btnGreen");
+        selectBtn.innerText = "Select";
+        selectBtn.addEventListener("click", () => {
+          saveProToLocalStorage(projectName);
+          setTimeout(() => {
+            redirectToAnotherPage("todo.html");
+          }, 100);
         });
-      } else {
-        trashBin.classList.add("hidden");
+
+        proName.innerText = capitalize(projectName);
+
+        if (orgAdmin === email || projectCreator === "You") {
+          trashBin.setAttribute("src", "../icons/trashBin.svg");
+          trashBin.setAttribute("alt", "Delete project");
+          trashBin.setAttribute("title", "Delete project");
+          trashBins.push(trashBin);
+          trashBin.addEventListener("click", () => {
+            const src = trashBin.getAttribute("src");
+            if (src.includes("trash")) {
+              resetTrashBins();
+              trashBin.setAttribute("src", "../icons/checkmark.svg");
+              trashBin.setAttribute("alt", "Confirm delete");
+              trashBin.setAttribute("title", "Confirm delete");
+            } else {
+              removeFromLocalStorage("chutodopro");
+              setTimeout(() => {
+                deleteProject(projectName);
+                updateLocalProjects();
+              }, 100);
+            }
+          });
+        } else {
+          trashBin.classList.add("hidden");
+        }
+
+        topContainer.appendChild(selectBtn);
+        topContainer.appendChild(proName);
+        topContainer.appendChild(trashBin);
+
+        createIconContainer(projectInfoContainer, "../icons/calendar.svg", `${capitalize(projectName)} create at ${projectDate}`, `${capitalize(projectName)} create at ${projectDate}`, projectDate, "Left");
+
+        createIconContainer(projectInfoContainer, "../icons/task.svg", `Project ${projectName} has ${projetsTasks} tasks`, `Project ${projectName} has ${projetsTasks} tasks`, projetsTasks, "Left");
+
+        createIconContainer(projectInfoContainer, "../icons/person.svg", `${projectCreator} created ${capitalize(projectName)}`, `${projectCreator} created ${capitalize(projectName)}`, projectCreator, "Right");
+
+        projectInfoContainer.children[1].classList.add("centerIcon");
+
+        li.appendChild(topContainer);
+        li.appendChild(projectInfoContainer);
+        projectsContainer.appendChild(li);
       }
-
-      topContainer.appendChild(selectBtn);
-      topContainer.appendChild(proName);
-      topContainer.appendChild(trashBin);
-
-      createIconContainer(projectInfoContainer, "../icons/calendar.svg", `${capitalize(projectName)} create at ${projectDate}`, `${capitalize(projectName)} create at ${projectDate}`, projectDate, "Left");
-
-      createIconContainer(projectInfoContainer, "../icons/person.svg", `${projectCreator} created ${capitalize(projectName)}`, `${projectCreator} created ${capitalize(projectName)}`, projectCreator, "Right");
-
-      li.appendChild(topContainer);
-      li.appendChild(projectInfoContainer);
-      projectsContainer.appendChild(li);
     });
     body.appendChild(projectsContainer);
   } else {
@@ -181,10 +331,69 @@ function formEvent() {
 
     if (name) {
       clearInputs();
-      createProject(name);
+      setTimeout(() => {
+        createProject(name);
+        updateLocalProjects();
+      }, 100);
     } else {
       setSubmitMessage("Enter a project name");
     }
+  });
+}
+
+function buttonEvents() {
+  sortBtns.forEach((btn) => {
+    const index = Array.from(sortBtns).indexOf(btn);
+    btn.addEventListener("click", () => {
+      switch (index) {
+        case 0:
+          localProjects = localProjectsUnsorted;
+          break;
+        case 1:
+          localProjects = localProjects.sort((a, b) => {
+            const dateA = parseDate(a.date);
+            const dateB = parseDate(b.date);
+            return dateB - dateA;
+          });
+          break;
+        case 2:
+          localProjects = localProjects.sort((a, b) => {
+            const dateA = parseDate(a.date);
+            const dateB = parseDate(b.date);
+            return dateA - dateB;
+          });
+          break;
+        case 3:
+          localProjects = localProjects.sort((a, b) => b.tasks - a.tasks);
+          break;
+        case 4:
+          localProjects = localProjects.sort((a, b) => {
+            const isADigits = /^\d+$/.test(a.name);
+            const isBDigits = /^\d+$/.test(b.name);
+
+            if (isADigits && isBDigits) return 0;
+            if (isADigits) return 1;
+            if (isBDigits) return -1;
+
+            return a.name.localeCompare(b.name);
+          });
+          break;
+        case 5:
+          if (email) {
+            localProjects = localProjects.sort((a, b) => {
+              const includesA = a.creator.includes(email);
+              const includesB = b.creator.includes(email);
+
+              if (includesA && !includesB) return -1;
+              if (!includesA && includesB) return 1;
+
+              return a.creator.localeCompare(b.creator);
+            });
+          }
+          break;
+      }
+      renderProjectsUl();
+    });
   });
 }
 
@@ -285,6 +494,18 @@ function capitalize(str) {
   return str[0].toUpperCase() + str.slice(1);
 }
 
+function parseDate(dateString) {
+  const [datePart, timePart] = dateString.split(" - ");
+  const [day, month, year] = datePart.split("/").map(Number);
+  const [hours, minutes] = timePart.split(":").map(Number);
+
+  return new Date(2000 + year, month - 1, day, hours, minutes);
+}
+
+function updateLocalProjects() {
+  assignProjects();
+}
+
 async function getOrgsProjects() {
   try {
     const respone = await fetch(getOrgsProjectsEndPoint, {
@@ -339,7 +560,7 @@ async function createProject(name) {
       if (status.ok) {
         saveProToLocalStorage(name);
         setTimeout(() => {
-          redirectToAnotherPage(status.path);
+          // redirectToAnotherPage(status.path);
         }, 100);
       }
     }
@@ -363,7 +584,7 @@ async function deleteProject(name) {
         const key = "chutodopro";
         removeFromLocalStorage(key);
         setTimeout(() => {
-          createUlFromProjects();
+          renderProjectsUl();
         }, 100);
       }
     }
