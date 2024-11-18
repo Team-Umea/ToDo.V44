@@ -45,7 +45,7 @@ function createJoinOrgForm() {
   const btn = document.createElement("button");
   const formMessage = document.createElement("p");
 
-  h1.innerText = `Welcome ${getUserAsName()} to organizations`;
+  h1.innerText = `Welcome ${extractUser(email)} to organizations`;
 
   container.setAttribute("class", "authContainer");
 
@@ -600,15 +600,18 @@ function clearInputs() {
 }
 
 function extractUser(email) {
-  const firstName = email.split(".")[0];
-  const lastName = email.split(".")[1];
-
-  const fullNameCaps = `${capitalize(firstName)} ${capitalize(lastName).replace(/[^a-zA-Z].*/, "")}`;
-  return fullNameCaps;
-}
-
-function getUserAsName() {
-  return email ? extractUser(email) : "";
+  if (email) {
+    const priorAt = email.split("@")[0];
+    if (priorAt.includes(".")) {
+      const firstName = capitalize(priorAt.split(".")[0]).replace(/[^a-zA-Z]/g, "");
+      const lastName = capitalize(priorAt.split(".")[1]).replace(/[^a-zA-Z]/g, "");
+      return `${firstName} ${lastName}`;
+    } else {
+      return capitalize(priorAt);
+    }
+  } else {
+    return "";
+  }
 }
 
 function capitalize(str) {

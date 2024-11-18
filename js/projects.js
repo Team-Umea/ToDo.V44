@@ -12,10 +12,12 @@ let submitMessage;
 
 let inputs = [];
 let labels = [];
+const trashBins = [];
 
 // const IP = "https://todobackend-vuxr.onrender.com/";
 const IP = "http://localhost:3000/";
 const getOrgsProjectsEndPoint = IP + "getOrgsProjects";
+const getOrgAdminEndPoint = IP + "getOrgAdmin";
 const createProjectEndPoint = IP + "createProject";
 const deleteProjectEndPoint = IP + "deleteProject";
 
@@ -37,7 +39,7 @@ function createNewProjectForm() {
   const btn = document.createElement("button");
   const proMessage = document.createElement("p");
 
-  h1.innerText = `Welcome ${getUserAsName()} to projects in ${capitalize(organization)}`;
+  h1.innerText = `Welcome ${extractUser(email)} to projects in ${capitalize(organization)}`;
 
   container.setAttribute("class", "formContainer");
 
@@ -73,6 +75,9 @@ function createNewProjectForm() {
 
 async function createUlFromProjects() {
   const projects = await getOrgsProjects();
+  const orgAdmin = await getOrgAdmin();
+
+  console.log("orgad", orgAdmin);
 
   projectsContainer.innerHTML = "";
 
@@ -82,7 +87,7 @@ async function createUlFromProjects() {
     projects.forEach((pro) => {
       const projectName = pro.name;
       const projectDate = pro.date;
-      const projectCreator = pro.creator === email ? "You" : extractName(pro.creator);
+      const projectCreator = pro.creator === email ? "You" : extractUser(pro.creator);
 
       const li = document.createElement("li");
       const topContainer = document.createElement("div");
@@ -107,12 +112,25 @@ async function createUlFromProjects() {
 
       proName.innerText = capitalize(projectName);
 
-      trashBin.setAttribute("src", "../icons/trashBin.svg");
-      trashBin.setAttribute("alt", "Delte project");
-      trashBin.setAttribute("title", "Project creator or organization admin can delete project");
-      trashBin.addEventListener("click", () => {
-        deleteProject(projectName);
-      });
+      if (orgAdmin === email || projectCreator === "You") {
+        trashBin.setAttribute("src", "../icons/trashBin.svg");
+        trashBin.setAttribute("alt", "Delete project");
+        trashBin.setAttribute("title", "Delete project");
+        trashBins.push(trashBin);
+        trashBin.addEventListener("click", () => {
+          const src = trashBin.getAttribute("src");
+          if (src.includes("trash")) {
+            resetTrashBins();
+            trashBin.setAttribute("src", "../icons/checkmark.svg");
+            trashBin.setAttribute("alt", "Confirm delete");
+            trashBin.setAttribute("title", "Confirm delete");
+          } else {
+            deleteProject(projectName);
+          }
+        });
+      } else {
+        trashBin.classList.add("hidden");
+      }
 
       topContainer.appendChild(selectBtn);
       topContainer.appendChild(proName);
@@ -130,6 +148,14 @@ async function createUlFromProjects() {
   } else {
     projectsContainer.classList.add("hidden");
   }
+}
+
+function resetTrashBins() {
+  trashBins.forEach((trashBin) => {
+    trashBin.setAttribute("src", "../icons/trashBin.svg");
+    trashBin.setAttribute("alt", "Delete project");
+    trashBin.setAttribute("title", "Delete project");
+  });
 }
 
 function createInputPasswordToggle(parent, id, placeholder, hidden) {
@@ -304,20 +330,23 @@ function reloadPage() {
   location.reload();
 }
 
-function extractName(email) {
-  const firstName = email.split(".")[0];
-  const lastName = email.split(".")[1];
-
-  const fullNameCaps = `${capitalize(firstName)} ${capitalize(lastName).replace(/[^a-zA-Z].*/, "")}`;
-  return fullNameCaps;
+function extractUser(email) {
+  if (email) {
+    const priorAt = email.split("@")[0];
+    if (priorAt.includes(".")) {
+      const firstName = capitalize(priorAt.split(".")[0]).replace(/[^a-zA-Z]/g, "");
+      const lastName = capitalize(priorAt.split(".")[1]).replace(/[^a-zA-Z]/g, "");
+      return `${firstName} ${lastName}`;
+    } else {
+      return capitalize(priorAt);
+    }
+  } else {
+    return "";
+  }
 }
 
 function capitalize(str) {
   return str[0].toUpperCase() + str.slice(1);
-}
-
-function getUserAsName() {
-  return email ? extractName(email) : "";
 }
 
 async function getOrgsProjects() {
@@ -333,6 +362,26 @@ async function getOrgsProjects() {
       const status = await respone.json();
       if (status.ok) {
         return status.projects;
+      }
+    }
+  } catch (error) {
+    console.error("Error: ", error);
+  }
+}
+
+async function getOrgAdmin() {
+  try {
+    const respone = await fetch(getOrgAdminEndPoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email: email, password: password, orgName: organization, orgPassword: organizationPassword }),
+    });
+    if (respone.ok) {
+      const status = await respone.json();
+      if (status.ok) {
+        return status.orgAdmin;
       }
     }
   } catch (error) {

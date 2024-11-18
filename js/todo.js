@@ -29,7 +29,7 @@ const editTaskEndPoint = IP + "editTask";
 const completeTaskEndPoint = IP + "completeTask";
 
 async function load() {
-  toDoH1.innerText = `Welcome ${getUserAsName()} to ToDo in project ${capitalize(project)}`;
+  toDoH1.innerText = `Welcome ${extractUser(email)} to ToDo in project ${capitalize(project)}`;
   toDo = await getTasksFromServer();
   toDo.forEach((task) => (task.visible = true));
   updateToDo();
@@ -407,20 +407,23 @@ function getProFromLocalStorage() {
   }
 }
 
-function extractName(email) {
-  const firstName = email.split(".")[0];
-  const lastName = email.split(".")[1];
-
-  const fullNameCaps = `${capitalize(firstName)} ${capitalize(lastName).replace(/[^a-zA-Z].*/, "")}`;
-  return fullNameCaps;
+function extractUser(email) {
+  if (email) {
+    const priorAt = email.split("@")[0];
+    if (priorAt.includes(".")) {
+      const firstName = capitalize(priorAt.split(".")[0]).replace(/[^a-zA-Z]/g, "");
+      const lastName = capitalize(priorAt.split(".")[1]).replace(/[^a-zA-Z]/g, "");
+      return `${firstName} ${lastName}`;
+    } else {
+      return capitalize(priorAt);
+    }
+  } else {
+    return "";
+  }
 }
 
 function capitalize(str) {
   return str[0].toUpperCase() + str.slice(1);
-}
-
-function getUserAsName() {
-  return email ? extractName(email) : "";
 }
 
 async function getTasksFromServer() {
