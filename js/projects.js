@@ -1,5 +1,6 @@
 const body = document.body;
 const projectsContainer = document.createElement("ul");
+const filterContainer = document.createElement("div");
 
 const email = getEmailFromLocalStorage();
 const password = getPasswordFromLocalStorage();
@@ -27,7 +28,6 @@ const deleteProjectEndPoint = IP + "deleteProject";
 function init() {
   assignProjects();
   createNewProjectForm();
-  createFilterProjectsContainer();
   formEvent();
   buttonEvents();
   noWhiteSpaceInput();
@@ -37,7 +37,7 @@ init();
 
 async function assignProjects() {
   const fetchedProjects = await getOrgsProjects();
-  localProjects = fetchedProjects.map((project, index) => {
+  localProjects = fetchedProjects.map((project) => {
     return { ...project, visible: true };
   });
   localProjectsUnsorted = localProjects;
@@ -87,138 +87,151 @@ function createNewProjectForm() {
   body.appendChild(container);
 }
 
-function createFilterProjectsContainer() {
-  const container = document.createElement("div");
+function toggleFilterProjectsContainer() {
+  if (localProjects && localProjects.length) {
+    filterContainer.innerHTML = "";
+    const container = document.createElement("div");
 
-  const sortContainer = document.createElement("div");
-  const searchContainer = document.createElement("div");
-  const sortHeader = document.createElement("h2");
-  const searchHeader = document.createElement("h2");
+    const sortContainer = document.createElement("div");
+    const searchContainer = document.createElement("div");
+    const sortHeader = document.createElement("h2");
+    const searchHeader = document.createElement("h2");
 
-  const allBtn = document.createElement("input");
-  const newBtn = document.createElement("input");
-  const oldBtn = document.createElement("input");
-  const tasksBtn = document.createElement("input");
-  const nameBtn = document.createElement("input");
-  const usersProjectsBtn = document.createElement("input");
+    const allBtn = document.createElement("input");
+    const newBtn = document.createElement("input");
+    const oldBtn = document.createElement("input");
+    const tasksBtn = document.createElement("input");
+    const nameBtn = document.createElement("input");
+    const usersProjectsBtn = document.createElement("input");
 
-  const allBtnLabel = document.createElement("label");
-  const newBtnLabel = document.createElement("label");
-  const oldBtnLabel = document.createElement("label");
-  const tasksBtnLabel = document.createElement("label");
-  const nameBtnLabel = document.createElement("label");
-  const usersProjectsBtnLabel = document.createElement("label");
+    const allBtnLabel = document.createElement("label");
+    const newBtnLabel = document.createElement("label");
+    const oldBtnLabel = document.createElement("label");
+    const tasksBtnLabel = document.createElement("label");
+    const nameBtnLabel = document.createElement("label");
+    const usersProjectsBtnLabel = document.createElement("label");
 
-  const searchwrapper = document.createElement("div");
-  const searchInput = document.createElement("input");
-  const cancelSearchBtn = document.createElement("button");
+    const searchwrapper = document.createElement("div");
+    const searchInput = document.createElement("input");
+    const cancelSearchBtn = document.createElement("button");
 
-  container.setAttribute("class", "filterProjects");
-  sortContainer.setAttribute("class", "sortProjects");
-  searchContainer.setAttribute("class", "searchProjects");
+    container.setAttribute("class", "filterProjects");
+    sortContainer.setAttribute("class", "sortProjects");
+    searchContainer.setAttribute("class", "searchProjects");
 
-  sortHeader.innerText = "Sort Order";
-  searchHeader.innerText = "Search Projects";
+    sortHeader.innerText = "Sort Order";
+    searchHeader.innerText = "Search Projects";
 
-  allBtn.setAttribute("checked", true);
+    allBtn.setAttribute("checked", true);
 
-  allBtn.setAttribute("id", "allProjectsBtn");
-  newBtn.setAttribute("id", "newProjectsBtn");
-  oldBtn.setAttribute("id", "oldProjectsBtn");
-  tasksBtn.setAttribute("id", "tasksProjectsBtn");
-  nameBtn.setAttribute("id", "projectNameBtn");
-  usersProjectsBtn.setAttribute("id", "usersProjectsBtn");
+    allBtn.setAttribute("id", "allProjectsBtn");
+    newBtn.setAttribute("id", "newProjectsBtn");
+    oldBtn.setAttribute("id", "oldProjectsBtn");
+    tasksBtn.setAttribute("id", "tasksProjectsBtn");
+    nameBtn.setAttribute("id", "projectNameBtn");
+    usersProjectsBtn.setAttribute("id", "usersProjectsBtn");
 
-  allBtn.setAttribute("type", "radio");
-  newBtn.setAttribute("type", "radio");
-  oldBtn.setAttribute("type", "radio");
-  tasksBtn.setAttribute("type", "radio");
-  nameBtn.setAttribute("type", "radio");
-  usersProjectsBtn.setAttribute("type", "radio");
+    allBtn.setAttribute("type", "radio");
+    newBtn.setAttribute("type", "radio");
+    oldBtn.setAttribute("type", "radio");
+    tasksBtn.setAttribute("type", "radio");
+    nameBtn.setAttribute("type", "radio");
+    usersProjectsBtn.setAttribute("type", "radio");
 
-  allBtn.setAttribute("name", "sortProjectsBtn");
-  newBtn.setAttribute("name", "sortProjectsBtn");
-  oldBtn.setAttribute("name", "sortProjectsBtn");
-  tasksBtn.setAttribute("name", "sortProjectsBtn");
-  nameBtn.setAttribute("name", "sortProjectsBtn");
-  usersProjectsBtn.setAttribute("name", "sortProjectsBtn");
+    allBtn.setAttribute("name", "sortProjectsBtn");
+    newBtn.setAttribute("name", "sortProjectsBtn");
+    oldBtn.setAttribute("name", "sortProjectsBtn");
+    tasksBtn.setAttribute("name", "sortProjectsBtn");
+    nameBtn.setAttribute("name", "sortProjectsBtn");
+    usersProjectsBtn.setAttribute("name", "sortProjectsBtn");
 
-  sortBtns.push(allBtn);
-  sortBtns.push(newBtn);
-  sortBtns.push(oldBtn);
-  sortBtns.push(tasksBtn);
-  sortBtns.push(nameBtn);
-  sortBtns.push(usersProjectsBtn);
+    sortBtns.push(allBtn);
+    sortBtns.push(newBtn);
+    sortBtns.push(oldBtn);
+    sortBtns.push(tasksBtn);
+    sortBtns.push(nameBtn);
+    sortBtns.push(usersProjectsBtn);
 
-  allBtnLabel.innerText = "View All";
-  newBtnLabel.innerText = "Lastest";
-  oldBtnLabel.innerText = "Oldest";
-  tasksBtnLabel.innerText = "Number of Tasks";
-  nameBtnLabel.innerText = "Alphabetical Order";
-  usersProjectsBtnLabel.innerText = "Your projects";
+    allBtnLabel.innerText = "View All";
+    newBtnLabel.innerText = "Lastest";
+    oldBtnLabel.innerText = "Oldest";
+    tasksBtnLabel.innerText = "Number of Tasks";
+    nameBtnLabel.innerText = "Alphabetical Order";
+    usersProjectsBtnLabel.innerText = "Your Projects";
 
-  allBtnLabel.setAttribute("for", "allProjectsBtn");
-  newBtnLabel.setAttribute("for", "newProjectsBtn");
-  oldBtnLabel.setAttribute("for", "oldProjectsBtn");
-  tasksBtnLabel.setAttribute("for", "tasksProjectsBtn");
-  nameBtnLabel.setAttribute("for", "projectNameBtn");
-  usersProjectsBtnLabel.setAttribute("for", "usersProjectsBtn");
+    allBtnLabel.setAttribute("for", "allProjectsBtn");
+    newBtnLabel.setAttribute("for", "newProjectsBtn");
+    oldBtnLabel.setAttribute("for", "oldProjectsBtn");
+    tasksBtnLabel.setAttribute("for", "tasksProjectsBtn");
+    nameBtnLabel.setAttribute("for", "projectNameBtn");
+    usersProjectsBtnLabel.setAttribute("for", "usersProjectsBtn");
 
-  sortContainer.appendChild(allBtn);
-  sortContainer.appendChild(allBtnLabel);
+    sortContainer.appendChild(allBtn);
+    sortContainer.appendChild(allBtnLabel);
 
-  sortContainer.appendChild(newBtn);
-  sortContainer.appendChild(newBtnLabel);
+    sortContainer.appendChild(newBtn);
+    sortContainer.appendChild(newBtnLabel);
 
-  sortContainer.appendChild(oldBtn);
-  sortContainer.appendChild(oldBtnLabel);
+    sortContainer.appendChild(oldBtn);
+    sortContainer.appendChild(oldBtnLabel);
 
-  sortContainer.appendChild(tasksBtn);
-  sortContainer.appendChild(tasksBtnLabel);
+    sortContainer.appendChild(tasksBtn);
+    sortContainer.appendChild(tasksBtnLabel);
 
-  sortContainer.appendChild(nameBtn);
-  sortContainer.appendChild(nameBtnLabel);
+    sortContainer.appendChild(nameBtn);
+    sortContainer.appendChild(nameBtnLabel);
 
-  sortContainer.appendChild(usersProjectsBtn);
-  sortContainer.appendChild(usersProjectsBtnLabel);
+    sortContainer.appendChild(usersProjectsBtn);
+    sortContainer.appendChild(usersProjectsBtnLabel);
 
-  searchInput.setAttribute("placeholder", "Search by project name");
-  searchInput.addEventListener("input", () => {
-    const searchQuery = searchInput.value.trim().toLowerCase();
-    searchInput.value = searchQuery;
+    searchInput.setAttribute("placeholder", "Search by project name");
+    searchInput.addEventListener("input", () => {
+      const searchQuery = searchInput.value.trim().toLowerCase();
+      searchInput.value = searchQuery;
 
-    if (searchQuery !== "") {
-      localProjects.forEach((project) => (!project.name.includes(searchQuery) ? (project.visible = false) : (project.visible = true)));
-      renderProjectsUl();
-    } else {
-      localProjects.forEach((project) => (project.visible = true));
-      renderProjectsUl();
-    }
-  });
+      if (searchQuery !== "") {
+        localProjects.forEach((org) => (!org.name.includes(searchQuery) ? (org.visible = false) : (org.visible = true)));
+        renderProjectsUl();
+      } else {
+        localProjects.forEach((org) => (org.visible = true));
+        renderProjectsUl();
+      }
+    });
 
-  cancelSearchBtn.innerText = "Cancel Search";
-  cancelSearchBtn.setAttribute("class", "btn");
+    cancelSearchBtn.innerText = "Cancel Search";
+    cancelSearchBtn.setAttribute("class", "btn");
 
-  searchwrapper.appendChild(searchInput);
-  searchwrapper.appendChild(cancelSearchBtn);
+    searchwrapper.appendChild(searchInput);
+    searchwrapper.appendChild(cancelSearchBtn);
 
-  searchContainer.appendChild(searchwrapper);
+    searchContainer.appendChild(searchwrapper);
 
-  container.appendChild(sortHeader);
-  container.appendChild(sortContainer);
-  container.appendChild(searchHeader);
-  container.appendChild(searchContainer);
+    container.appendChild(sortHeader);
+    container.appendChild(sortContainer);
+    container.appendChild(searchHeader);
+    container.appendChild(searchContainer);
 
-  body.appendChild(container);
+    filterContainer.appendChild(container);
+  } else {
+    filterContainer.innerHTML = "";
+  }
+}
+
+function positonBodyElements() {
+  if (localProjects && localProjects.length > 0) {
+    body.setAttribute("class", "alignTop");
+  } else {
+    body.setAttribute("class", "alignCenter");
+  }
 }
 
 async function renderProjectsUl() {
   const orgAdmin = await getOrgAdmin();
-
-  projectsContainer.innerHTML = "";
-
+  if (localProjects.length === 0 || filterContainer.innerHTML === "") {
+    toggleFilterProjectsContainer();
+  }
   if (localProjects && localProjects.length) {
-    projectsContainer.classList.remove("hidden");
+    projectsContainer.innerHTML = "";
     projectsContainer.setAttribute("class", "projectsUl");
     localProjects.forEach((pro) => {
       if (pro.visible) {
@@ -292,9 +305,8 @@ async function renderProjectsUl() {
       }
     });
     body.appendChild(projectsContainer);
-  } else {
-    projectsContainer.classList.add("hidden");
   }
+  positonBodyElements();
 }
 
 function resetTrashBins() {

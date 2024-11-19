@@ -16,7 +16,8 @@ body {
   margin: 0;
 }
 
-h1 {
+h1,
+h2 {
   text-align: center;
 }
 
@@ -160,29 +161,6 @@ input:focus {
   font-size: 0.8rem;
 }
 
-.orgsHeader {
-  text-align: center;
-}
-
-.usersOrgsContainer {
-  position: relative;
-  width: 100%;
-  overflow: hidden;
-}
-
-.orgInfoContainer {
-  display: flex;
-  width: 100%;
-  justify-content: space-between;
-  position: relative;
-}
-
-.dateAdminContainer {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
 .iconContainer {
   display: flex;
   align-items: center;
@@ -212,99 +190,7 @@ input:focus {
   align-self: center;
 }
 
-.usersOrgsUl {
-  list-style: none;
-  display: flex;
-  width: 100%;
-}
-
-.usersOrgsUl li {
-  padding: 10px;
-  display: flex;
-  width: 100%;
-  flex: 0 0 100%;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  background-color: rgb(221, 213, 213);
-}
-
-.orgsUlBtnContainer {
-  max-width: 86%;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 1rem;
-  align-items: flex-end;
-}
-
-.orgsUlBtnContainer button {
-  color: #e6e8eb;
-  margin: 0;
-  width: fit-content;
-}
-
-.orgsUlPassContainer {
-  width: 100%;
-  max-width: 80%;
-  background-color: #e9e3e3;
-}
-
-.orgsUlPassContainer div input {
-  background-color: transparent;
-}
-
-.usersOrgsUl li form div .orgUl {
-  list-style: none;
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.orgUl {
-  margin-bottom: 1rem;
-}
-
-.orgUl li {
-  padding: 10px;
-  border-radius: 4px;
-  background-color: rgb(207, 204, 204);
-  transition: all 0.4s ease-in-out;
-}
-
-.orgUl li:hover {
-  background-color: rgb(226, 222, 222);
-}
-
-.carousel-button {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  background-color: transparent;
-  border: none;
-  font-size: 2rem;
-  padding: 10px;
-  cursor: pointer;
-  z-index: 10;
-  color: black;
-}
-
-.carousel-button.left {
-  left: 10px;
-}
-
-.carousel-button.right {
-  right: 10px;
-}
-
-.carousel-button:focus {
-  outline: none;
-}
-
-/*Projects page*/
-
-.filterProjects {
+.filterDataContainer {
   width: min(100%, 800px);
   border-radius: 8px;
   padding: 20px;
@@ -316,14 +202,14 @@ input:focus {
   background: white;
 }
 
-.sortProjects {
+.sortDataContainer {
   width: 100%;
   display: flex;
   justify-content: space-between;
   gap: 10px;
 }
 
-.sortProjects label {
+.sortDataContainer label {
   font-size: 1rem;
   color: #555;
   cursor: pointer;
@@ -333,32 +219,32 @@ input:focus {
   transition: background-color 0.3s, color 0.3s;
 }
 
-.searchProjects input[type="radio"]:checked + viewAll {
-  background-color: #00796b;
-}
-
-.sortProjects input[type="radio"]:checked + label {
+.sortDataContainer input[type="radio"]:checked + label {
   color: white;
   background-color: #00796b;
 }
 
-.sortProjects input {
+/* .searchDataContainer input[type="radio"]:checked + viewAll {
+  background-color: #00796b;
+} */
+
+.sortDataContainer input {
   display: none;
 }
 
-.searchProjects {
+.searchDataContainer {
   width: 100%;
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-.searchProjects div {
+.searchDataContainer div {
   display: flex;
   gap: 10px;
 }
 
-.searchProjects button {
+.searchDataContainer button {
   width: fit-content;
   white-space: nowrap;
   padding: 10px 20px;
@@ -368,7 +254,7 @@ input:focus {
   transition: all 0.3s ease-out;
 }
 
-.searchProjects button:hover {
+.searchDataContainer button:hover {
   background-color: #028878;
 }
 
@@ -459,4 +345,23 @@ input:focus {
 }
 .error {
   color: red;
+}
+
+.alignTop {
+  justify-content: flex-start;
+  padding-top: 100px;
+}
+
+.alignCenter {
+  padding-top: 0;
+  justify-content: center;
+}
+
+@media (max-width: 800px) {
+  .sortDataContainer {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 0;
+  }
 }
