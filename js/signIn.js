@@ -42,18 +42,18 @@ function createSignInAuth() {
   emailHolder.innerText = email;
   emailHolder.setAttribute("class", "emailHolder");
 
-  code.setAttribute("placeholder", "Ange koden skickat till din melj");
+  code.setAttribute("placeholder", "Enter verification code sent to your email");
   code.setAttribute("class", "hidden m-1rem");
   code.setAttribute("type", "number");
 
   cancelResetBtn.setAttribute("class", "cancelBtn btn hidden");
-  cancelResetBtn.innerText = "Avbryt";
+  cancelResetBtn.innerText = "Cancel";
 
-  resetPassWordBtn.innerText = "Återställ lösenord";
+  resetPassWordBtn.innerText = "Reset Password";
   resetPassWordBtn.setAttribute("class", "btn");
-  resetPassWordBtn.setAttribute("type", "submit");
+  resetPassWordBtn.setAttribute("type", "button");
 
-  signInBtn.innerText = "Logga in";
+  signInBtn.innerText = "Sign In";
   signInBtn.setAttribute("type", "submit");
   signInBtn.setAttribute("class", "submitBtn");
 
@@ -68,8 +68,8 @@ function createSignInAuth() {
 
   signInForm.appendChild(emailHolder);
   signInForm.appendChild(code);
-  createInputPasswordToggle(signInForm, "password", "Ange ditt lösenord", false);
-  createInputPasswordToggle(signInForm, "confirmPassword", "Bekräfta nytt lösenord", true);
+  createInputPasswordToggle(signInForm, "password", "Enter your password", false);
+  createInputPasswordToggle(signInForm, "confirmPassword", "Confirm new password", true);
   signInForm.appendChild(cancelResetBtn);
   signInForm.appendChild(resetPassWordBtn);
   signInForm.appendChild(signInBtn);
@@ -133,7 +133,7 @@ function hideResetEls(resetBtn, cancelBtn, signInBtn) {
     const index = Array.from(inputs).indexOf(input);
     switch (index) {
       case 0:
-        input.placeholder = "Ange ditt lösenord";
+        input.placeholder = "Enter your password";
         break;
       case 1:
         input.classList.add("hidden");
@@ -145,7 +145,8 @@ function hideResetEls(resetBtn, cancelBtn, signInBtn) {
   });
 
   toggleWrappers(false);
-  resetBtn.innerText = "Återställ lösenord";
+  resetBtn.setAttribute("type", "button");
+  resetBtn.innerText = "Reset Password";
   cancelBtn.classList.add("hidden");
   signInBtn.classList.remove("hidden");
   inputEvents(false);
@@ -157,7 +158,7 @@ function showResetEls(resetBtn, cancelBtn, signInBtn) {
     const index = Array.from(inputs).indexOf(input);
     switch (index) {
       case 0:
-        input.placeholder = "Välj nytt lösenord";
+        input.placeholder = "Chose new password";
         break;
       case 1:
         input.classList.remove("hidden");
@@ -169,7 +170,8 @@ function showResetEls(resetBtn, cancelBtn, signInBtn) {
   });
 
   toggleWrappers(true);
-  resetBtn.innerText = "Bekräfta nytt lösenord";
+  resetBtn.setAttribute("type", "submit");
+  resetBtn.innerText = "Confirm New Password";
   cancelBtn.classList.remove("hidden");
   signInBtn.classList.add("hidden");
   inputEvents(true);
@@ -225,23 +227,22 @@ function buttonEvents() {
     const confirmPassword = inputs[1].value;
     const code = inputs[2].value;
     const btnText = resetBtn.innerText;
-    if (btnText === "Återställ lösenord") {
+    if (btnText === "Reset Password") {
       getPasswordChangeCode(email);
       showResetEls(resetBtn, cancelBtn, signInBtn);
     } else {
       if (password.length > 7) {
         if (password === confirmPassword) {
           if (code.length === 6) {
-            hideResetEls(resetBtn, cancelBtn, signInBtn);
             changePassword(email, password, confirmPassword, code);
           } else {
-            setFormMessage("Verifieringskoden måste vara 6 siffror");
+            setFormMessage("Code must be 6 digits");
           }
         } else {
-          setFormMessage("Lösenorden stämmer inte överrens");
+          setFormMessage("Passwords must match");
         }
       } else {
-        setFormMessage("Lösenorden måste vara minst 8 tecken långa");
+        setFormMessage("Passwords must be atleast 8 characters");
       }
     }
   });
@@ -309,7 +310,7 @@ function redirectToAnotherPage(path) {
 
 function checkPasswordLength(value, label) {
   if (value.length < 8) {
-    label.innerText = "Lösenordet måste vara minst 8 tecken långt";
+    label.innerText = "Password must be atleast 8 characters";
   } else {
     label.innerText = "";
   }
@@ -317,7 +318,7 @@ function checkPasswordLength(value, label) {
 
 function checkPasswordMatch(value1, value2, label) {
   if (value1 !== value2) {
-    label.innerText = "Lösenorden måste vara samma";
+    label.innerText = "Passwords must match";
   } else {
     label.innerText = "";
   }
@@ -352,13 +353,22 @@ async function getPasswordChangeCode(email) {
 
 async function changePassword(email, password, confirmPassword, code) {
   try {
-    fetch(changePasswordEndPoint, {
+    const response = await fetch(changePasswordEndPoint, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ email: email, password: password, confirmPassword: confirmPassword, code: code }),
     });
+    if (response.ok) {
+      const status = await response.json();
+      if (status.ok) {
+        const resetBtn = buttons[0];
+        const cancelBtn = buttons[1];
+        const signInBtn = buttons[2];
+        hideResetEls(resetBtn, cancelBtn, signInBtn);
+      }
+    }
   } catch (error) {
     console.log("Error", error);
   }

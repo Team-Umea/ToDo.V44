@@ -12,7 +12,7 @@ let submitMessage;
 
 let inputs = [];
 let labels = [];
-const sortBtns = [];
+let sortBtns = [];
 const trashBins = [];
 
 let localProjects = [];
@@ -29,8 +29,12 @@ function init() {
   assignProjects();
   createNewProjectForm();
   formEvent();
-  buttonEvents();
+  sortButtonEvents();
   noWhiteSpaceInput();
+  body.appendChild(filterContainer);
+  body.appendChild(projectsContainer);
+  handleNavBackEvent();
+  positonBodyElements();
 }
 
 init();
@@ -41,7 +45,15 @@ async function assignProjects() {
     return { ...project, visible: true };
   });
   localProjectsUnsorted = localProjects;
+  sortProOnListModidy();
   renderProjectsUl();
+}
+
+function handleNavBackEvent() {
+  const navBack = document.querySelector(".navigateBack");
+  navBack.addEventListener("click", () => {
+    redirectToAnotherPage("organizations.html");
+  });
 }
 
 function createNewProjectForm() {
@@ -94,17 +106,13 @@ function toggleFilterProjectsContainer() {
 
     const sortContainer = document.createElement("div");
     const searchContainer = document.createElement("div");
-    const sortHeader = document.createElement("h2");
-    const searchHeader = document.createElement("h2");
 
-    const allBtn = document.createElement("input");
     const newBtn = document.createElement("input");
     const oldBtn = document.createElement("input");
     const tasksBtn = document.createElement("input");
     const nameBtn = document.createElement("input");
     const usersProjectsBtn = document.createElement("input");
 
-    const allBtnLabel = document.createElement("label");
     const newBtnLabel = document.createElement("label");
     const oldBtnLabel = document.createElement("label");
     const tasksBtnLabel = document.createElement("label");
@@ -115,59 +123,51 @@ function toggleFilterProjectsContainer() {
     const searchInput = document.createElement("input");
     const cancelSearchBtn = document.createElement("button");
 
-    container.setAttribute("class", "filterProjects");
-    sortContainer.setAttribute("class", "sortProjects");
-    searchContainer.setAttribute("class", "searchProjects");
+    container.setAttribute("class", "filterDataContainer");
+    sortContainer.setAttribute("class", "sortDataContainer");
+    searchContainer.setAttribute("class", "searchDataContainer");
 
-    sortHeader.innerText = "Sort Order";
-    searchHeader.innerText = "Search Projects";
+    newBtn.setAttribute("checked", true);
 
-    allBtn.setAttribute("checked", true);
-
-    allBtn.setAttribute("id", "allProjectsBtn");
     newBtn.setAttribute("id", "newProjectsBtn");
     oldBtn.setAttribute("id", "oldProjectsBtn");
     tasksBtn.setAttribute("id", "tasksProjectsBtn");
     nameBtn.setAttribute("id", "projectNameBtn");
     usersProjectsBtn.setAttribute("id", "usersProjectsBtn");
 
-    allBtn.setAttribute("type", "radio");
     newBtn.setAttribute("type", "radio");
     oldBtn.setAttribute("type", "radio");
     tasksBtn.setAttribute("type", "radio");
     nameBtn.setAttribute("type", "radio");
     usersProjectsBtn.setAttribute("type", "radio");
 
-    allBtn.setAttribute("name", "sortProjectsBtn");
     newBtn.setAttribute("name", "sortProjectsBtn");
     oldBtn.setAttribute("name", "sortProjectsBtn");
     tasksBtn.setAttribute("name", "sortProjectsBtn");
     nameBtn.setAttribute("name", "sortProjectsBtn");
     usersProjectsBtn.setAttribute("name", "sortProjectsBtn");
 
-    sortBtns.push(allBtn);
+    sortBtns = [];
+
     sortBtns.push(newBtn);
     sortBtns.push(oldBtn);
     sortBtns.push(tasksBtn);
     sortBtns.push(nameBtn);
     sortBtns.push(usersProjectsBtn);
 
-    allBtnLabel.innerText = "View All";
+    sortButtonEvents();
+
     newBtnLabel.innerText = "Lastest";
     oldBtnLabel.innerText = "Oldest";
     tasksBtnLabel.innerText = "Number of Tasks";
     nameBtnLabel.innerText = "Alphabetical Order";
     usersProjectsBtnLabel.innerText = "Your Projects";
 
-    allBtnLabel.setAttribute("for", "allProjectsBtn");
     newBtnLabel.setAttribute("for", "newProjectsBtn");
     oldBtnLabel.setAttribute("for", "oldProjectsBtn");
     tasksBtnLabel.setAttribute("for", "tasksProjectsBtn");
     nameBtnLabel.setAttribute("for", "projectNameBtn");
     usersProjectsBtnLabel.setAttribute("for", "usersProjectsBtn");
-
-    sortContainer.appendChild(allBtn);
-    sortContainer.appendChild(allBtnLabel);
 
     sortContainer.appendChild(newBtn);
     sortContainer.appendChild(newBtnLabel);
@@ -206,9 +206,7 @@ function toggleFilterProjectsContainer() {
 
     searchContainer.appendChild(searchwrapper);
 
-    container.appendChild(sortHeader);
     container.appendChild(sortContainer);
-    container.appendChild(searchHeader);
     container.appendChild(searchContainer);
 
     filterContainer.appendChild(container);
@@ -229,9 +227,11 @@ async function renderProjectsUl() {
   const orgAdmin = await getOrgAdmin();
   if (localProjects.length === 0 || filterContainer.innerHTML === "") {
     toggleFilterProjectsContainer();
+    projectsContainer.classList.add("hidden");
   }
+  projectsContainer.innerHTML = "";
   if (localProjects && localProjects.length) {
-    projectsContainer.innerHTML = "";
+    projectsContainer.classList.remove("hidden");
     projectsContainer.setAttribute("class", "projectsUl");
     localProjects.forEach((pro) => {
       if (pro.visible) {
@@ -277,8 +277,8 @@ async function renderProjectsUl() {
               trashBin.setAttribute("title", "Confirm delete");
             } else {
               removeFromLocalStorage("chutodopro");
+              deleteProject(projectName);
               setTimeout(() => {
-                deleteProject(projectName);
                 updateLocalProjects();
               }, 100);
             }
@@ -304,7 +304,6 @@ async function renderProjectsUl() {
         projectsContainer.appendChild(li);
       }
     });
-    body.appendChild(projectsContainer);
   }
   positonBodyElements();
 }
@@ -343,8 +342,8 @@ function formEvent() {
 
     if (name) {
       clearInputs();
+      createProject(name);
       setTimeout(() => {
-        createProject(name);
         updateLocalProjects();
       }, 100);
     } else {
@@ -353,59 +352,74 @@ function formEvent() {
   });
 }
 
-function buttonEvents() {
+function sortButtonEvents() {
   sortBtns.forEach((btn) => {
     const index = Array.from(sortBtns).indexOf(btn);
     btn.addEventListener("click", () => {
-      switch (index) {
-        case 0:
-          localProjects = localProjectsUnsorted;
-          break;
-        case 1:
-          localProjects = localProjects.sort((a, b) => {
-            const dateA = parseDate(a.date);
-            const dateB = parseDate(b.date);
-            return dateB - dateA;
-          });
-          break;
-        case 2:
-          localProjects = localProjects.sort((a, b) => {
-            const dateA = parseDate(a.date);
-            const dateB = parseDate(b.date);
-            return dateA - dateB;
-          });
-          break;
-        case 3:
-          localProjects = localProjects.sort((a, b) => b.tasks - a.tasks);
-          break;
-        case 4:
-          localProjects = localProjects.sort((a, b) => {
-            const isADigits = /^\d+$/.test(a.name);
-            const isBDigits = /^\d+$/.test(b.name);
-
-            if (isADigits && isBDigits) return 0;
-            if (isADigits) return 1;
-            if (isBDigits) return -1;
-
-            return a.name.localeCompare(b.name);
-          });
-          break;
-        case 5:
-          if (email) {
-            localProjects = localProjects.sort((a, b) => {
-              const includesA = a.creator.includes(email);
-              const includesB = b.creator.includes(email);
-
-              if (includesA && !includesB) return -1;
-              if (!includesA && includesB) return 1;
-
-              return a.creator.localeCompare(b.creator);
-            });
-          }
-          break;
-      }
-      renderProjectsUl();
+      sortProjects(index);
     });
+  });
+}
+
+function sortProjects(index) {
+  switch (index) {
+    case 0:
+      baseSort();
+      break;
+    case 1:
+      localProjects = localProjects.sort((a, b) => {
+        const dateA = parseDate(a.date);
+        const dateB = parseDate(b.date);
+        return dateA - dateB;
+      });
+      break;
+    case 2:
+      localProjects = localProjects.sort((a, b) => b.tasks - a.tasks);
+      break;
+    case 3:
+      localProjects = localProjects.sort((a, b) => {
+        const isADigits = /^\d+$/.test(a.name);
+        const isBDigits = /^\d+$/.test(b.name);
+
+        if (isADigits && isBDigits) return 0;
+        if (isADigits) return 1;
+        if (isBDigits) return -1;
+
+        return a.name.localeCompare(b.name);
+      });
+      break;
+    case 4:
+      if (email) {
+        localProjects = localProjects.sort((a, b) => {
+          const includesA = a.creator.includes(email);
+          const includesB = b.creator.includes(email);
+
+          if (includesA && !includesB) return -1;
+          if (!includesA && includesB) return 1;
+
+          return a.creator.localeCompare(b.creator);
+        });
+      }
+      break;
+  }
+  renderProjectsUl();
+}
+
+function sortProOnListModidy() {
+  const selectedBtn = Array.from(sortBtns).find((btn) => btn.checked);
+  const index = Array.from(sortBtns).indexOf(selectedBtn);
+  baseSort();
+  sortProjects(index);
+}
+
+function baseSort() {
+  localProjects = localProjects.sort((a, b) => {
+    const dateA = parseDate(a.date);
+    const dateB = parseDate(b.date);
+    if (dateB - dateA !== 0) {
+      return dateB - dateA;
+    }
+    return a.name.localeCompare(b.name);
   });
 }
 
@@ -595,9 +609,6 @@ async function deleteProject(name) {
       if (status.ok) {
         const key = "chutodopro";
         removeFromLocalStorage(key);
-        setTimeout(() => {
-          renderProjectsUl();
-        }, 100);
       }
     }
   } catch (error) {

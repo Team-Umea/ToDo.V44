@@ -83,19 +83,19 @@ function createEmailAuth() {
   const codeID = "code";
 
   emailContainer.setAttribute("class", "emailContainer authContainer");
-  emailInput.setAttribute("placeholder", "Ange en mejladress");
+  emailInput.setAttribute("placeholder", "Enter email");
   emailInput.setAttribute("id", emailID);
 
   emailLabel.setAttribute("for", emailID);
 
   codeInput.setAttribute("id", codeID);
-  codeInput.setAttribute("placeholder", "Ange verifieringskoden som skickats till din mejl");
+  codeInput.setAttribute("placeholder", "Enter verification code sent to your email");
   codeInput.setAttribute("class", "hidden");
   codeInput.setAttribute("type", "number");
 
   codeLabel.setAttribute("for", codeID);
 
-  emailSubmitBtn.innerText = "Gå vidare";
+  emailSubmitBtn.innerText = "Continue";
   emailSubmitBtn.setAttribute("type", "submit");
   emailSubmitBtn.setAttribute("class", "submitBtn");
 
@@ -127,14 +127,14 @@ function formEvents() {
     const buttonText = submitBtn.innerText;
     const email = inputs[0].value;
     const code = inputs[1].value;
-    if (buttonText === "Gå vidare") {
+    if (buttonText === "Continue") {
       showCodeEls();
-      setBtnText("Verifiera mejl");
+      setBtnText("Verify email");
       getVerCode(email);
-    } else if (buttonText === "Verifiera mejl") {
+    } else if (buttonText === "Verify email") {
       verifyEmail(email, code);
       setTimeout(() => {
-        setSubmitMessage("Koden stämmer inte");
+        setSubmitMessage("Invalid code");
       }, 3000);
     }
   });
@@ -179,7 +179,7 @@ function inputEvents() {
 
 function checkEmail(value, label) {
   if (!value.includes(".") || !value.includes("@")) {
-    label.innerText = "Ange en giltig mejladress";
+    label.innerText = "Enter a valid email";
   } else {
     label.innerText = "";
   }
@@ -187,7 +187,7 @@ function checkEmail(value, label) {
 
 function checkVerCode(value, label) {
   if (value.length !== 6 || isNaN(Number(value))) {
-    label.innerText = "Koden ska bestå av 6 siffor";
+    label.innerText = "Code must be 6 digits";
   } else {
     label.innerText = "";
   }

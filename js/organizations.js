@@ -16,9 +16,10 @@ let wrappers = [];
 let uls = [];
 
 let sortBtns = [];
+let linkedBtns = [];
+let resetOrgPasswordForms = [];
 
 let localOrgs = [];
-let localOrgsUnsorted = [];
 
 // const IP = "https://todobackend-vuxr.onrender.com/";
 const IP = "http://localhost:3000/";
@@ -36,10 +37,11 @@ function init() {
   createNewOrgForm();
   inputEvents();
   formEvent();
-  buttonEvents();
-
+  sortButtonEvents();
+  usersOrganizationsContainer.setAttribute("class", "usersOrganizationsContainer");
   body.appendChild(filterContainer);
   body.appendChild(usersOrganizationsContainer);
+  positonBodyElements();
 }
 
 init();
@@ -49,7 +51,7 @@ async function assignLocalOrgs() {
   localOrgs = fetchedOrgs.map((org) => {
     return { ...org, visible: true };
   });
-  localOrgsUnsorted = localOrgs;
+  sortOrgsOnListModidy();
   renderUsersOrgsUl();
 }
 
@@ -249,6 +251,8 @@ function renderUsersOrgsUl() {
 
     orgsContainer.setAttribute("class", "usersOrgsContainer");
     orgsUl.setAttribute("class", "usersOrgsUl");
+    linkedBtns = [];
+    resetOrgPasswordForms = [];
     localOrgs.forEach((org) => {
       if (org.visible) {
         const organizationName = org.name;
@@ -256,6 +260,7 @@ function renderUsersOrgsUl() {
         const organizationDate = org.date;
         const organizationAdmin = org.isAdmin ? "You" : extractUser(org.admin);
         const organizationMembers = org.members;
+        const organizationProjects = org.projects;
 
         const orgLi = document.createElement("li");
         const orgInfoContainer = document.createElement("div");
@@ -265,11 +270,11 @@ function renderUsersOrgsUl() {
 
         createIconContainer(orgInfoContainer, "../icons/calendar.svg", `${organizationName} created at ${organizationDate}`, `${organizationName} created at ${organizationDate}`, organizationDate, "Left");
 
-        createIconContainer(orgInfoContainer, "../icons/person.svg", `${organizationAdmin} is ${organizationName} admin`, `${organizationAdmin} is ${organizationName} admin`, organizationAdmin, "Left");
+        createIconContainer(orgInfoContainer, "../icons/person.svg", `${organizationAdmin} is ${organizationName} admin`, `${organizationAdmin} is ${organizationName} admin`, organizationAdmin, "Right");
 
-        createIconContainer(orgInfoContainer, "../icons/group.svg", `${organizationName} has ${organizationMembers} members`, `${organizationName} has ${organizationMembers} members`, organizationMembers, "Right");
+        createIconContainer(orgInfoContainer, "../icons/group.svg", `${organizationName} has ${organizationMembers} members`, `${organizationName} has ${organizationMembers} members`, organizationMembers, "Left");
 
-        orgInfoContainer.children[1].classList.add("centerIcon");
+        createIconContainer(orgInfoContainer, "../icons/task.svg", `${organizationName} has ${organizationProjects} projects`, `${organizationName} has ${organizationProjects} projects`, organizationProjects, "Right");
 
         const btnContainer = document.createElement("div");
         const selectBtn = document.createElement("button");
@@ -281,38 +286,51 @@ function renderUsersOrgsUl() {
 
         selectBtn.innerText = "Select";
         selectBtn.setAttribute("class", "btn btnGreen");
-        usersOrgsButtonEvent(0, selectBtn, undefined, false, [organizationName, organizationPassword]);
+        usersOrgsButtonEvent(0, selectBtn, false, [organizationName, organizationPassword]);
 
         leaveBtn.innerText = "Leave";
         leaveBtn.setAttribute("class", "btn btnYellow");
-        usersOrgsButtonEvent(1, leaveBtn, deleteBtn, true, [organizationName]);
+        usersOrgsButtonEvent(1, leaveBtn, true, [organizationName]);
 
         deleteBtn.innerText = "Delete";
         org.isAdmin ? deleteBtn.setAttribute("class", "btn btnRed") : deleteBtn.setAttribute("class", "btn btnRed hidden");
-        usersOrgsButtonEvent(2, deleteBtn, leaveBtn, true, [organizationName]);
+        usersOrgsButtonEvent(2, deleteBtn, true, [organizationName]);
 
         resetOrgPasswordBtn.innerText = "Reset Password";
         org.isAdmin ? resetOrgPasswordBtn.setAttribute("class", "btn btnGrey") : resetOrgPasswordBtn.setAttribute("class", "btn btnGrey hidden");
         resetOrgPasswordBtn.addEventListener("click", () => {
-          deleteBtn.innerText = "Delete";
-          leaveBtn.innerText = "Leave";
-          orgLi.lastElementChild.classList.remove("hidden");
+          resetButtonsEvents();
+          const resetOrgPasswordForm = orgLi.lastElementChild;
+          resetOrgPasswordForm.classList.remove("hidden");
+          const formExixts = resetOrgPasswordForms.includes(resetOrgPasswordForm);
+          if (!formExixts) {
+            resetOrgPasswordForms.push(resetOrgPasswordForm);
+          }
         });
+
+        linkedBtns.push({ btnName: "Select", btn: selectBtn });
+        linkedBtns.push({ btnName: "Leave", btn: leaveBtn });
+        linkedBtns.push({ btnName: "Delete", btn: deleteBtn });
+        linkedBtns.push({ btnName: "Reset Password", btn: resetOrgPasswordBtn });
 
         btnContainer.appendChild(selectBtn);
         btnContainer.appendChild(leaveBtn);
         btnContainer.appendChild(deleteBtn);
         btnContainer.appendChild(resetOrgPasswordBtn);
 
-        orgLi.appendChild(orgInfoContainer);
         orgLi.appendChild(orgName);
+        orgLi.appendChild(orgInfoContainer);
         orgLi.appendChild(btnContainer);
         createResetOrgPasswordForm(orgLi, org.name);
         orgsUl.appendChild(orgLi);
       }
     });
 
-    orgsContainer.appendChild(orgsHeader);
+    const matchingSearchQuery = localOrgs.some((org) => org.visible);
+
+    if (matchingSearchQuery) {
+      orgsContainer.appendChild(orgsHeader);
+    }
     orgsContainer.appendChild(orgsUl);
     usersOrganizationsContainer.appendChild(orgsContainer);
   }
@@ -329,14 +347,12 @@ function toggleFilterOrganizationsContainer() {
     const sortHeader = document.createElement("h2");
     const searchHeader = document.createElement("h2");
 
-    const allBtn = document.createElement("input");
     const newBtn = document.createElement("input");
     const oldBtn = document.createElement("input");
     const tasksBtn = document.createElement("input");
     const nameBtn = document.createElement("input");
     const usersOrganizationsBtn = document.createElement("input");
 
-    const allBtnLabel = document.createElement("label");
     const newBtnLabel = document.createElement("label");
     const oldBtnLabel = document.createElement("label");
     const tasksBtnLabel = document.createElement("label");
@@ -354,23 +370,20 @@ function toggleFilterOrganizationsContainer() {
     sortHeader.innerText = "Sort Order";
     searchHeader.innerText = "Search Projects";
 
-    allBtn.setAttribute("checked", true);
+    newBtn.setAttribute("checked", true);
 
-    allBtn.setAttribute("id", "allOrgsBtn");
     newBtn.setAttribute("id", "newOrgsBtn");
     oldBtn.setAttribute("id", "oldOrgsBtn");
     tasksBtn.setAttribute("id", "projectsOrgsBtn");
     nameBtn.setAttribute("id", "orgNameBtn");
     usersOrganizationsBtn.setAttribute("id", "usersOrgsBtn");
 
-    allBtn.setAttribute("type", "radio");
     newBtn.setAttribute("type", "radio");
     oldBtn.setAttribute("type", "radio");
     tasksBtn.setAttribute("type", "radio");
     nameBtn.setAttribute("type", "radio");
     usersOrganizationsBtn.setAttribute("type", "radio");
 
-    allBtn.setAttribute("name", "sortOrganizationsBtn");
     newBtn.setAttribute("name", "sortOrganizationsBtn");
     oldBtn.setAttribute("name", "sortOrganizationsBtn");
     tasksBtn.setAttribute("name", "sortOrganizationsBtn");
@@ -379,7 +392,6 @@ function toggleFilterOrganizationsContainer() {
 
     sortBtns = [];
 
-    sortBtns.push(allBtn);
     sortBtns.push(newBtn);
     sortBtns.push(oldBtn);
     sortBtns.push(tasksBtn);
@@ -387,22 +399,17 @@ function toggleFilterOrganizationsContainer() {
     sortBtns.push(usersOrganizationsBtn);
     sortButtonEvents();
 
-    allBtnLabel.innerText = "View All";
     newBtnLabel.innerText = "Lastest";
     oldBtnLabel.innerText = "Oldest";
     tasksBtnLabel.innerText = "Number of Projects";
     nameBtnLabel.innerText = "Alphabetical Order";
-    usersProjectsBtnLabel.innerText = "Your Organizations";
+    usersProjectsBtnLabel.innerText = "Administered Organizations";
 
-    allBtnLabel.setAttribute("for", "allOrgsBtn");
     newBtnLabel.setAttribute("for", "newOrgsBtn");
     oldBtnLabel.setAttribute("for", "oldOrgsBtn");
     tasksBtnLabel.setAttribute("for", "projectsOrgsBtn");
     nameBtnLabel.setAttribute("for", "orgNameBtn");
     usersProjectsBtnLabel.setAttribute("for", "usersOrgsBtn");
-
-    sortContainer.appendChild(allBtn);
-    sortContainer.appendChild(allBtnLabel);
 
     sortContainer.appendChild(newBtn);
     sortContainer.appendChild(newBtnLabel);
@@ -447,6 +454,11 @@ function toggleFilterOrganizationsContainer() {
   }
 }
 
+function resetButtonsEvents() {
+  linkedBtns.forEach((btn) => (btn.btn.innerText = btn.btnName));
+  resetOrgPasswordForms.forEach((form) => form.classList.add("hidden"));
+}
+
 function createIconContainer(parent, src, alt, title, text, dir) {
   const container = document.createElement("div");
   const desc = document.createElement("p");
@@ -466,9 +478,10 @@ function createIconContainer(parent, src, alt, title, text, dir) {
   parent.appendChild(container);
 }
 
-function usersOrgsButtonEvent(index, btn, linkedBtn, confirm, orgInfo) {
+function usersOrgsButtonEvent(index, btn, confirm, orgInfo) {
   btn.addEventListener("click", () => {
     const btnText = btn.innerText;
+    resetButtonsEvents();
     switch (index) {
       case 0:
         saveOrgToLocalStorage(orgInfo[0]);
@@ -481,7 +494,9 @@ function usersOrgsButtonEvent(index, btn, linkedBtn, confirm, orgInfo) {
         if (confirm) {
           if (btnText === "Leave") {
             btn.innerText = "Confirm";
-            linkedBtn.innerText = "Delete";
+            setTimeout(() => {
+              btn.innerText = "Leave";
+            }, 2000);
           } else if (btnText === "Confirm") {
             btn.innerText = "Leave";
             leaveOrganization(orgInfo[0]);
@@ -495,7 +510,9 @@ function usersOrgsButtonEvent(index, btn, linkedBtn, confirm, orgInfo) {
         if (confirm) {
           if (btnText === "Delete") {
             btn.innerText = "Confirm";
-            linkedBtn.innerText = "Leave";
+            setTimeout(() => {
+              btn.innerText = "Delete";
+            }, 2000);
           } else if (btnText === "Confirm") {
             btn.innerText = "Delete";
             deleteOrganization(orgInfo[0]);
@@ -682,7 +699,7 @@ function inputEvents() {
   noWhiteSpaceInput();
 }
 
-function buttonEvents() {
+function sortButtonEvents() {
   buttons.forEach((btn) => {
     const index = Array.from(buttons).indexOf(btn);
     btn.addEventListener("click", (e) => {
@@ -691,8 +708,6 @@ function buttonEvents() {
           const submitBtn = buttons[1];
           toggleJoinForm(submitBtn, false);
           break;
-        // case 1:
-        // break;
         default:
           break;
       }
@@ -704,55 +719,70 @@ function sortButtonEvents() {
   sortBtns.forEach((btn) => {
     const index = Array.from(sortBtns).indexOf(btn);
     btn.addEventListener("click", () => {
-      switch (index) {
-        case 0:
-          localOrgs = localOrgsUnsorted;
-          break;
-        case 1:
-          localOrgs = localOrgs.sort((a, b) => {
-            const dateA = parseDate(a.date);
-            const dateB = parseDate(b.date);
-            return dateB - dateA;
-          });
-          break;
-        case 2:
-          localOrgs = localOrgs.sort((a, b) => {
-            const dateA = parseDate(a.date);
-            const dateB = parseDate(b.date);
-            return dateA - dateB;
-          });
-          break;
-        case 3:
-          localOrgs = localOrgs.sort((a, b) => b.projects - a.projects);
-          break;
-        case 4:
-          localOrgs = localOrgs.sort((a, b) => {
-            const isADigits = /^\d+$/.test(a.name);
-            const isBDigits = /^\d+$/.test(b.name);
-
-            if (isADigits && isBDigits) return 0;
-            if (isADigits) return 1;
-            if (isBDigits) return -1;
-
-            return a.name.localeCompare(b.name);
-          });
-          break;
-        case 5:
-          if (email) {
-            localOrgs = localOrgs.sort((a, b) => {
-              const includesA = a.admin.includes(email);
-              const includesB = b.admin.includes(email);
-
-              if (includesA && !includesB) return -1;
-              if (!includesA && includesB) return 1;
-
-              return a.admin.localeCompare(b.admin);
-            });
-          }
-          break;
-      }
-      renderUsersOrgsUl();
+      sortOrgs(index);
     });
+  });
+}
+
+function sortOrgs(index) {
+  switch (index) {
+    case 0:
+      baseSort();
+      break;
+    case 1:
+      localOrgs = localOrgs.sort((a, b) => {
+        const dateA = parseDate(a.date);
+        const dateB = parseDate(b.date);
+        return dateA - dateB;
+      });
+      break;
+    case 2:
+      localOrgs = localOrgs.sort((a, b) => b.projects - a.projects);
+      break;
+    case 3:
+      localOrgs = localOrgs.sort((a, b) => {
+        const isADigits = /^\d+$/.test(a.name);
+        const isBDigits = /^\d+$/.test(b.name);
+
+        if (isADigits && isBDigits) return 0;
+        if (isADigits) return 1;
+        if (isBDigits) return -1;
+
+        return a.name.localeCompare(b.name);
+      });
+      break;
+    case 4:
+      if (email) {
+        localOrgs = localOrgs.sort((a, b) => {
+          const includesA = a.admin.includes(email);
+          const includesB = b.admin.includes(email);
+
+          if (includesA && !includesB) return -1;
+          if (!includesA && includesB) return 1;
+
+          return a.admin.localeCompare(b.admin);
+        });
+      }
+      break;
+  }
+  renderUsersOrgsUl();
+}
+
+function sortOrgsOnListModidy() {
+  const selectedBtn = Array.from(sortBtns).find((btn) => btn.checked);
+  const index = Array.from(sortBtns).indexOf(selectedBtn);
+  baseSort();
+  sortOrgs(index);
+}
+
+function baseSort() {
+  localOrgs = localOrgs.sort((a, b) => {
+    const dateA = parseDate(a.date);
+    const dateB = parseDate(b.date);
+    if (dateB - dateA !== 0) {
+      return dateB - dateA;
+    }
+    return a.name.localeCompare(b.name);
   });
 }
 
