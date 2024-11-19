@@ -4,8 +4,12 @@ const filterContainer = document.createElement("div");
 
 const email = getEmailFromLocalStorage();
 const password = getPasswordFromLocalStorage();
+let userName = "";
+
 let passChangeCode;
 let selectedOrganization;
+let firstContainer;
+
 let forms = [];
 let submitMessages = [];
 
@@ -23,6 +27,7 @@ let localOrgs = [];
 
 // const IP = "https://todobackend-vuxr.onrender.com/";
 const IP = "http://localhost:3000/";
+const getUsersEndPoint = IP + "users";
 const getOrgsEndPoint = IP + "getAllOrgs";
 const getUsersOrgsEndPoint = IP + "usersOrgs";
 const joinOrgEndPoint = IP + "joinOrg";
@@ -32,6 +37,7 @@ const deleteOrgEndPoint = IP + "deleteOrg";
 const changeOrgPasswordEndPoint = IP + "changeOrgPassword";
 
 function init() {
+  assignUserName();
   assignLocalOrgs();
   createJoinOrgForm();
   createNewOrgForm();
@@ -55,8 +61,13 @@ async function assignLocalOrgs() {
   renderUsersOrgsUl();
 }
 
-function createJoinOrgForm() {
+function welcomeMessage(name) {
   const h1 = document.createElement("h1");
+  h1.innerText = `Welcome ${capitalize(name)} to organizations`;
+  document.body.insertBefore(h1, firstContainer);
+}
+
+function createJoinOrgForm() {
   const container = document.createElement("div");
   const orgForm = document.createElement("form");
   const header = document.createElement("p");
@@ -66,9 +77,8 @@ function createJoinOrgForm() {
   const btn = document.createElement("button");
   const formMessage = document.createElement("p");
 
-  h1.innerText = `Welcome ${extractUser(email)} to organizations`;
-
   container.setAttribute("class", "authContainer");
+  firstContainer = container;
 
   header.innerText = "Join organization";
   header.setAttribute("class", "formHeader");
@@ -110,7 +120,6 @@ function createJoinOrgForm() {
   container.appendChild(orgForm);
   container.appendChild(formMessage);
 
-  body.appendChild(h1);
   body.appendChild(container);
 
   const orgPassword = wrappers[0];
@@ -900,6 +909,24 @@ function reloadPage() {
   location.reload();
 }
 
+async function assignUserName() {
+  try {
+    const response = await fetch(getUsersEndPoint);
+    if (response.ok) {
+      const users = await response.json();
+      const user = users.find((user) => user.email === email);
+      if (user) {
+        const alias = user.userName;
+        welcomeMessage(alias);
+      } else {
+        welcomeMessage("");
+      }
+    }
+  } catch (error) {
+    console.log("There was a problem fetching users");
+  }
+}
+
 async function getOrgs() {
   try {
     const response = await fetch(getOrgsEndPoint, {
@@ -1006,9 +1033,6 @@ async function leaveOrganization(name) {
         const org = "chutodoorg";
         removeFromLocalStorage(pro);
         removeFromLocalStorage(org);
-        // setTimeout(() => {
-        //   reloadPage();
-        // }, 100);
       }
     }
   } catch (error) {
@@ -1032,9 +1056,6 @@ async function deleteOrganization(name) {
         const org = "chutodoorg";
         removeFromLocalStorage(pro);
         removeFromLocalStorage(org);
-        // setTimeout(() => {
-        //   reloadPage();
-        // }, 100);
       }
     }
   } catch (error) {

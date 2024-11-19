@@ -399,8 +399,12 @@ async function signIn(email, password) {
 
 async function getUsers() {
   try {
-    const res = await fetch(getUsersEndPoint);
-    return (users = await res.json());
+    const response = await fetch(getUsersEndPoint);
+    if (response.ok) {
+      const users = await response.json();
+      const emalis = users.map((user) => user.email);
+      return emalis;
+    }
   } catch (error) {
     console.log("There was a problem fetching users");
   }

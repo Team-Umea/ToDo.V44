@@ -9,6 +9,7 @@ const organizationPassword = getOrgPasswordFromLocalStorage();
 
 let form;
 let submitMessage;
+let firstContainer;
 
 let inputs = [];
 let labels = [];
@@ -20,12 +21,14 @@ let localProjectsUnsorted = [];
 
 // const IP = "https://todobackend-vuxr.onrender.com/";
 const IP = "http://localhost:3000/";
+const getUsersEndPoint = IP + "users";
 const getOrgsProjectsEndPoint = IP + "getOrgsProjects";
 const getOrgAdminEndPoint = IP + "getOrgAdmin";
 const createProjectEndPoint = IP + "createProject";
 const deleteProjectEndPoint = IP + "deleteProject";
 
 function init() {
+  assignUserName();
   assignProjects();
   createNewProjectForm();
   formEvent();
@@ -49,6 +52,12 @@ async function assignProjects() {
   renderProjectsUl();
 }
 
+function welcomeMessage(name) {
+  const h1 = document.createElement("h1");
+  h1.innerText = `Welcome ${capitalize(name)} to organizations`;
+  document.body.insertBefore(h1, firstContainer);
+}
+
 function handleNavBackEvent() {
   const navBack = document.querySelector(".navigateBack");
   navBack.addEventListener("click", () => {
@@ -57,7 +66,6 @@ function handleNavBackEvent() {
 }
 
 function createNewProjectForm() {
-  const h1 = document.createElement("h1");
   const container = document.createElement("div");
   const projectForm = document.createElement("form");
   const header = document.createElement("p");
@@ -65,9 +73,8 @@ function createNewProjectForm() {
   const btn = document.createElement("button");
   const proMessage = document.createElement("p");
 
-  h1.innerText = `Welcome ${extractUser(email)} to projects in ${capitalize(organization)}`;
-
   container.setAttribute("class", "formContainer");
+  firstContainer = container;
 
   header.innerText = `Create new project in ${capitalize(organization)}`;
   header.setAttribute("class", "formHeader");
@@ -95,7 +102,6 @@ function createNewProjectForm() {
   container.appendChild(projectForm);
   container.appendChild(proMessage);
 
-  body.appendChild(h1);
   body.appendChild(container);
 }
 
@@ -530,6 +536,24 @@ function parseDate(dateString) {
 
 function updateLocalProjects() {
   assignProjects();
+}
+
+async function assignUserName() {
+  try {
+    const response = await fetch(getUsersEndPoint);
+    if (response.ok) {
+      const users = await response.json();
+      const user = users.find((user) => user.email === email);
+      if (user) {
+        const alias = user.userName;
+        welcomeMessage(alias);
+      } else {
+        welcomeMessage("");
+      }
+    }
+  } catch (error) {
+    console.log("There was a problem fetching users");
+  }
 }
 
 async function getOrgsProjects() {

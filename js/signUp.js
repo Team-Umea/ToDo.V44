@@ -17,11 +17,14 @@ init();
 
 // const IP = "https://todobackend-vuxr.onrender.com/";
 const IP = "http://localhost:3000/";
+const getUsersEndPoint = IP + "users";
 const addUserEndPoint = IP + "addUser";
 
 function createSignUpAuth() {
   const signUpContainer = document.createElement("div");
   const signUpForm = document.createElement("form");
+  const userName = document.createElement("input");
+  const userNameLabel = document.createElement("label");
   const emailHolder = document.createElement("p");
   const signUpBtn = document.createElement("button");
   const signUpMessage = document.createElement("p");
@@ -29,10 +32,18 @@ function createSignUpAuth() {
   signUpContainer.setAttribute("class", "signUpContainer authContainer");
 
   emailHolder.innerText = email;
-
   emailHolder.setAttribute("class", "emailHolder");
 
-  signUpBtn.innerText = "Skapa konto";
+  const userNameID = "userName";
+  userName.setAttribute("placeholder", "Chose a user name");
+  userName.setAttribute("id", userNameID);
+
+  userNameLabel.setAttribute("for", userNameID);
+
+  inputs.push(userName);
+  labels.push(userNameLabel);
+
+  signUpBtn.innerText = "Create Account";
   signUpBtn.setAttribute("type", "submit");
   signUpBtn.setAttribute("class", "submitBtn");
 
@@ -42,8 +53,10 @@ function createSignUpAuth() {
   form = signUpForm;
 
   signUpForm.appendChild(emailHolder);
-  createInputPasswordToggle(signUpForm, "password", "Ange ett lösenord", false);
-  createInputPasswordToggle(signUpForm, "confirmPassword", "Bekräfta lösenord", false);
+  signUpForm.appendChild(userName);
+  signUpForm.appendChild(userNameLabel);
+  createInputPasswordToggle(signUpForm, "password", "Chose password", false);
+  createInputPasswordToggle(signUpForm, "confirmPassword", "Confirm pasword", false);
   signUpForm.appendChild(signUpBtn);
   signUpContainer.appendChild(signUpForm);
   signUpContainer.appendChild(signUpMessage);
@@ -102,14 +115,15 @@ function formEvents() {
   form.addEventListener("submit", (e) => {
     e.preventDefault();
 
-    const password = inputs[0].value;
-    const confirmPassword = inputs[1].value;
+    const userName = inputs[0].value;
+    const password = inputs[1].value;
+    const confirmPassword = inputs[2].value;
 
-    if (password.length > 7 && password === confirmPassword && email) {
-      signUp(email, password, confirmPassword);
+    if (userName !== "" && password.length > 7 && password === confirmPassword && email) {
+      signUp(email, userName, password, confirmPassword);
       resetLables();
     } else {
-      setSubmitMessage("Lösenorden måste vara samma och minst vara 8 tecken långa");
+      setSubmitMessage("User name cannot be empty and passwords must match and be atleast 8 characters");
     }
   });
 }
@@ -131,20 +145,25 @@ function noWhiteSpaceInput() {
 }
 
 function inputEvents() {
-  const passwordLabel = labels[0];
-  const confirmPasswordLabel = labels[1];
+  const userNameLabel = labels[0];
+  const passwordLabel = labels[1];
+  const confirmPasswordLabel = labels[2];
 
   inputs.forEach((input) => {
     const index = Array.from(inputs).indexOf(input);
     input.addEventListener("input", () => {
-      const password = inputs[0].value;
-      const confirmPassword = inputs[1].value;
+      const userName = inputs[0].value;
+      const password = inputs[1].value;
+      const confirmPassword = inputs[2].value;
       setSubmitMessage("");
       switch (index) {
         case 0:
-          checkPasswordLength(password, passwordLabel);
+          checkUserName(userName, userNameLabel);
           break;
         case 1:
+          checkPasswordLength(password, passwordLabel);
+          break;
+        case 2:
           checkPasswordMatch(password, confirmPassword, confirmPasswordLabel);
           break;
       }
@@ -153,9 +172,30 @@ function inputEvents() {
   noWhiteSpaceInput();
 }
 
+function checkUserName(value, label) {
+  if (value !== "") {
+    const isUnique = checkUniqueUserName(value);
+
+    if (!isUnique) {
+      label.innerText = "User name already exists";
+    } else {
+      label.innerText = "User name is avaliable";
+    }
+  } else {
+    label.innerText = "";
+  }
+}
+
+async function checkUniqueUserName(newUserName) {
+  const user = await getUsers();
+  const userNames = user.map((user) => user.userName.toLowerCase());
+  const isUnique = !userNames.includes(newUserName.toLowerCase());
+  return isUnique;
+}
+
 function checkPasswordLength(value, label) {
   if (value.length < 8) {
-    label.innerText = "Lösenordet måste vara minst 8 tecken långt";
+    label.innerText = "Password must be atleast 8 characters";
   } else {
     label.innerText = "";
   }
@@ -163,7 +203,7 @@ function checkPasswordLength(value, label) {
 
 function checkPasswordMatch(value1, value2, label) {
   if (value1 !== value2) {
-    label.innerText = "Lösenorden måste vara samma";
+    label.innerText = "Passwords must match";
   } else {
     label.innerText = "";
   }
@@ -191,14 +231,25 @@ function redirectToAnotherPage(path) {
   window.location.href = path;
 }
 
-async function signUp(email, password, confirmPassword) {
+async function getUsers() {
+  try {
+    const response = await fetch(getUsersEndPoint);
+    if (response.ok) {
+      return (users = await response.json());
+    }
+  } catch (error) {
+    console.log("There was a problem fetching users");
+  }
+}
+
+async function signUp(email, userName, password, confirmPassword) {
   try {
     const response = await fetch(addUserEndPoint, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ email: email, password: password, confirmPassword: confirmPassword }),
+      body: JSON.stringify({ email: email, userName: userName, password: password, confirmPassword: confirmPassword }),
     });
     if (response.ok) {
       const status = await response.json();

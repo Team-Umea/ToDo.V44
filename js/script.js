@@ -315,10 +315,12 @@ async function userExistsOnServer() {
 
 async function getUsers() {
   try {
-    const res = await fetch(getUsersEndPoint);
-    const temp = await res.json();
-    console.log("Temp: ", temp);
-    return temp;
+    const response = await fetch(getUsersEndPoint);
+    if (response.ok) {
+      const users = await response.json();
+      const emalis = users.map((user) => user.email);
+      return emalis;
+    }
   } catch (error) {
     console.log("There was a problem fetching users");
   }
